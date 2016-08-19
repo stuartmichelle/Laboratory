@@ -27,7 +27,7 @@ dest$quant <- NULL
 dest$destloc <- "P11"
 dest <- dest[ , c(2,3,4,1,6,5)]
 
-# add digest locations
+# add source locations
 
 # digests from the date we want
 digest <- data.frame(labor %>% tbl("digest") %>% filter(date == '2016-04-04'), stringsAsFactors = F)
