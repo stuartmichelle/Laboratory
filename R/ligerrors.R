@@ -55,13 +55,8 @@ dest$destloc <- "P12"
 # extracts from the first plate
 E1 <- data.frame(labor %>% tbl("extraction") %>% filter(date == dest$date[1]), stringsAsFactors = F)
 
-S1_first <- E1$extraction_ID[1]
-S1_last <- E1$extraction_ID[96]
-
-if (dest$extraction_ID[1] < S1_last){
-  filelist <- sort(list.files(path='.', pattern = S1_first), decreasing=FALSE)
-  S1 <- read.csv(filelist[1], row.names = 1)
-}
+source("R/findplatelist1.R")
+S1 <- findplatelist1(E1$extraction_ID, dest$extraction_ID)
 
 # the specific digest plate
 names(S1) <- c("Row", "Col", "ID")

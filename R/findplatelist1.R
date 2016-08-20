@@ -1,8 +1,8 @@
-# This function finds the platemap for the first 96 samples worked on for a given lab procedure on a given day
+# This function finds the platemap worked on for a given lab procedure
 
-findplatelist1 <- function(x,y){
-  S1_first <- x[1]
-  S1_last <- x[96]
+findplatelist <- function(original,dest,firstwell,lastwell){
+  S1_first <- x[firstwell]
+  S1_last <- x[lastwell]
   
   if (y[1] < S1_last){
     filelist <- sort(list.files(path='.', pattern = S1_first), decreasing=FALSE)
