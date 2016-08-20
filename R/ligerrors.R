@@ -12,18 +12,18 @@ ligs <- filter(ligs, grepl('regenotype', Issue))
 
 
 
-# make sure they aren't on the list of good matches
-matches <- read.csv("~/Documents/Philippines/Genetics/2016-08-19matches.csv")
-
-bingo <- data.frame(Ligation_ID = character(0), Issue = character(0))
-
-for (i in 1:nrow(ligs)){
-bingo$Ligation_ID[i] <- ligs$Ligation_ID[which(ligs$Ligation_ID[i] == matches$First.ID)]
-}
-
-for (i in 1:nrow(ligs)){
-  bingo$Ligation_ID[i] <- ligs$Ligation_ID[which(ligs$Ligation_ID[i] == matches$Second.ID)]
-}
+# # make sure they aren't on the list of good matches
+# matches <- read.csv("~/Documents/Philippines/Genetics/2016-08-19matches.csv")
+# 
+# bingo <- data.frame(Ligation_ID = character(0), Issue = character(0))
+# 
+# for (i in 1:nrow(ligs)){
+# bingo$Ligation_ID[i] <- ligs$Ligation_ID[which(ligs$Ligation_ID[i] == matches$First.ID)]
+# }
+# 
+# for (i in 1:nrow(ligs)){
+#   bingo$Ligation_ID[i] <- ligs$Ligation_ID[which(ligs$Ligation_ID[i] == matches$Second.ID)]
+# }
 
 # Find the extraction IDs of the samples to be regenotyped
 c1 <- labor %>% tbl("extraction") %>% select(extraction_ID, sample_ID, date)
@@ -50,156 +50,119 @@ dest$Col <- NULL
 dest$Ligation_ID <- NULL
 dest$destloc <- "P12"
 
-# add source locations
+sourceplate <- .......
+for (i in 2:5){
+  source(paste("R/findplate copy 1.R", sep = ""))
+  sourceplate <- rbind(sourceplate, S1)
+}
 
-# extracts from the first plate
-E1 <- data.frame(labor %>% tbl("extraction") %>% filter(date == dest$date[1]), stringsAsFactors = F)
+# Extracts from Plate 2 ---------------------------------------------------
+# search the database for all of the extracts done on the same day as the first extract we are looking for
+E1 <- data.frame(labor %>% tbl("extraction") %>% select(extraction_ID, date) %>% filter(date == dest$date[1]), stringsAsFactors = F)
 
-source("R/findplatelist1.R")
-S1 <- findplatelist1(E1$extraction_ID, dest$extraction_ID)
+# find the ID of the first extract of the plate that holds the extract we want
+S2_first <- E1$extraction_ID[round(which(E1$extraction_ID == dest$extraction_ID[1])/96)*96 + 1]
 
-# the specific digest plate
-names(S1) <- c("Row", "Col", "ID")
+# file the file list of extracts and locations on our plate 
+filelist <- sort(list.files(path="data/", pattern = S2_first), decreasing=FALSE)
 
-dest <- merge(dest, S1, by.x = "extraction_ID", by.y = "ID", all.x = T)
+# pick that file from the list
+pick <- paste("data/", filelist[1], sep = "")
+
+# read in the csv of plate locations
+S2 <- read.csv(pick[1], row.names = 1)
+
+# rename the columns
+names(S2) <- c("Row", "Col", "ID")
+
+# match the source well locations to our destination plate extracts
+dest <- merge(dest, S2, by.x = "extraction_ID", by.y = "ID", all.x = T)
+
+# combine row and col columns to one plate location
 dest$sourcewell <- paste(dest$Row, dest$Col, sep = "")
 
 # clean up
 dest$Row <- NULL
 dest$Col <- NULL
 
-# split out digests by plate
+# move the located extracts to their own table and define a source location
+S2 <- dest[which(dest$sourcewell != "NANA"), ]
+S2$sourceloc <- "P13"
 
+# reset the dest table with only extracts that still need to be located and repeat
+dest <- dest[which(dest$sourcewell == "NANA"), ]
+
+# Extracts from Plate 3 ---------------------------------------------------
+# search the database for all of the extracts done on the same day as the first extract we are looking for
+E1 <- data.frame(labor %>% tbl("extraction") %>% select(extraction_ID, date) %>% filter(date == dest$date[1]), stringsAsFactors = F)
+
+# find the ID of the first extract of the plate that holds the extract we want
+S2_first <- E1$extraction_ID[round(which(E1$extraction_ID == dest$extraction_ID[1])/96)*96 + 1]
+
+# file the file list of extracts and locations on our plate 
+filelist <- sort(list.files(path="data/", pattern = S1_first), decreasing=FALSE)
+
+# pick that file from the list
+pick <- paste("data/", filelist[1], sep = "")
+
+# read in the csv of plate locations
+S1 <- read.csv(pick[1], row.names = 1)
+
+# rename the columns
+names(S1) <- c("Row", "Col", "ID")
+
+# match the source well locations to our destination plate extracts
+dest <- merge(dest, S1, by.x = "extraction_ID", by.y = "ID", all.x = T)
+
+# combine row and col columns to one plate location
+dest$sourcewell <- paste(dest$Row, dest$Col, sep = "")
+
+# clean up
+dest$Row <- NULL
+dest$Col <- NULL
+
+# move the located extracts to their own table and define a source location
 S1 <- dest[which(dest$sourcewell != "NANA"), ]
 S1$sourceloc <- "P13"
 
+# reset the dest table with only extracts that still need to be located and repeat
 dest <- dest[which(dest$sourcewell == "NANA"), ]
 
-# extracts from the next plate
-E1 <- data.frame(labor %>% tbl("extraction") %>% filter(date == dest$date[1]), stringsAsFactors = F)
+# Extracts from Plate 3 ---------------------------------------------------
+# search the database for all of the extracts done on the same day as the first extract we are looking for
+E1 <- data.frame(labor %>% tbl("extraction") %>% select(extraction_ID, date) %>% filter(date == dest$date[1]), stringsAsFactors = F)
 
-S2_first <- E1$extraction_ID[1]
-S2_last <- E1$extraction_ID[96]
+# find the ID of the first extract of the plate that holds the extract we want
+S2_first <- E1$extraction_ID[round(which(E1$extraction_ID == dest$extraction_ID[1])/96)*96 + 1]
 
-if (dest$extraction_ID[1] < S2_last){
-  filelist <- sort(list.files(path='.', pattern = S2_first), decreasing=FALSE)
-  S2 <- read.csv(filelist[1], row.names = 1)
-}else{
-  S2_first <- E1$extraction_ID[97]
-  S2_last <- E1$extraction_ID[192]
-  if (dest$extraction_ID[1] < S2_last){
-    filelist <- sort(list.files(path='.', pattern = S2_first), decreasing=FALSE)
-    S2 <- read.csv(filelist[1], row.names = 1)
-  }
-}
+# file the file list of extracts and locations on our plate 
+filelist <- sort(list.files(path="data/", pattern = S1_first), decreasing=FALSE)
 
-# the specific digest plate
-names(S2) <- c("Row", "Col", "ID")
+# pick that file from the list
+pick <- paste("data/", filelist[1], sep = "")
 
-dest <- merge(dest, S2, by.x = "extraction_ID", by.y = "ID", all.x = T)
+# read in the csv of plate locations
+S1 <- read.csv(pick[1], row.names = 1)
+
+# rename the columns
+names(S1) <- c("Row", "Col", "ID")
+
+# match the source well locations to our destination plate extracts
+dest <- merge(dest, S1, by.x = "extraction_ID", by.y = "ID", all.x = T)
+
+# combine row and col columns to one plate location
 dest$sourcewell <- paste(dest$Row, dest$Col, sep = "")
 
 # clean up
 dest$Row <- NULL
 dest$Col <- NULL
 
-# split out digests by plate
+# move the located extracts to their own table and define a source location
+S1 <- dest[which(dest$sourcewell != "NANA"), ]
+S1$sourceloc <- "P13"
 
-S2 <- dest[which(dest$sourcewell != "NANA"), ]
-S2$sourceloc <- "P8"
-
+# reset the dest table with only extracts that still need to be located and repeat
 dest <- dest[which(dest$sourcewell == "NANA"), ]
-
-# extracts from the next plate
-E1 <- data.frame(labor %>% tbl("extraction") %>% filter(date == dest$date[1]), stringsAsFactors = F)
-
-
-
-S3_first <- E1$extraction_ID[1]
-S3_last <- E1$extraction_ID[96]
-
-if (dest$extraction_ID[1] < S3_last){
-  filelist <- sort(list.files(path='.', pattern = S3_first), decreasing=FALSE)
-  S3 <- read.csv(filelist[1], row.names = 1)
-}else{
-  S3_first <- E1$extraction_ID[97]
-  S3_last <- E1$extraction_ID[192]
-  if (dest$extraction_ID[1] < S3_last){
-    filelist <- sort(list.files(path='.', pattern = S3_first), decreasing=FALSE)
-    S3 <- read.csv(filelist[1], row.names = 1)
-  }else{
-    S3_first <- E1$extraction_ID[193]
-    S3_last <- E1$extraction_ID[288]
-    if (dest$extraction_ID[1] < S3_last){
-      filelist <- sort(list.files(path='.', pattern = S3_first), decreasing=FALSE)
-      S3 <- read.csv(filelist[1], row.names = 1)
-  }
-}
-
-# the specific digest plate
-names(S3) <- c("Row", "Col", "ID")
-
-dest <- merge(dest, S3, by.x = "extraction_ID", by.y = "ID", all.x = T)
-dest$sourcewell <- paste(dest$Row, dest$Col, sep = "")
-
-# clean up
-dest$Row <- NULL
-dest$Col <- NULL
-
-# split out digests by plate
-
-S3 <- dest[which(dest$sourcewell != "NANA"), ]
-S3$sourceloc <- "P9"
-
-dest <- dest[which(dest$sourcewell == "NANA"), ]
-
-# extracts from the next plate
-E1 <- data.frame(labor %>% tbl("extraction") %>% filter(date == dest$date[1]), stringsAsFactors = F)
-
-S4_first <- E1$extraction_ID[1]
-S4_last <- E1$extraction_ID[96]
-
-if (dest$extraction_ID[1] < S4_last){
-  filelist <- sort(list.files(path='.', pattern = S4_first), decreasing=FALSE)
-  S4 <- read.csv(filelist[1], row.names = 1)
-}else{
-  S4_first <- E1$extraction_ID[97]
-  S4_last <- E1$extraction_ID[192]
-  if (dest$extraction_ID[1] < S4_last){
-    filelist <- sort(list.files(path='.', pattern = S4_first), decreasing=FALSE)
-    S4 <- read.csv(filelist[1], row.names = 1)
-  }else{
-    S4_first <- E1$extraction_ID[193]
-    S4_last <- E1$extraction_ID[288]
-    if (dest$extraction_ID[1] < S4_last){
-      filelist <- sort(list.files(path='.', pattern = S4_first), decreasing=FALSE)
-      S4 <- read.csv(filelist[1], row.names = 1)
-    }else{
-      S4_first <- E1$extraction_ID[289]
-      S4_last <- E1$extraction_ID[384]
-      if (dest$extraction_ID[1] < S4_last){
-        filelist <- sort(list.files(path='.', pattern = S4_first), decreasing=FALSE)
-        S4 <- read.csv(filelist[1], row.names = 1)
-    }
-  }
-}
-  # the specific digest plate
-  names(S4) <- c("Row", "Col", "ID")
-  
-  dest <- merge(dest, S4, by.x = "extraction_ID", by.y = "ID", all.x = T)
-  dest$sourcewell <- paste(dest$Row, dest$Col, sep = "")
-  
-  # clean up
-  dest$Row <- NULL
-  dest$Col <- NULL
-  
-  # split out digests by plate
-  
-  S4 <- dest[which(dest$sourcewell != "NANA"), ]
-  S4$sourceloc <- "P10"
-  
-  dest <- dest[which(dest$sourcewell == "NANA"), ]
-  
   # extracts from the next plate
   E1 <- data.frame(labor %>% tbl("extraction") %>% filter(date == dest$date[1]), stringsAsFactors = F)
   
