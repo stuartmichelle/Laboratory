@@ -1,4 +1,5 @@
 # This is a script to find Ligations that need to be re-done due to lab error
+# TODO - remove repeat extract IDs before assigning plate positions
 
 
 # Connect to databases
@@ -33,6 +34,9 @@ c4 <- labor %>% tbl("ligation") %>% select(ligation_ID, digest_ID)
 c5 <- left_join(c4, c3, by = "digest_ID")
 ligs <- left_join(ligs, c5, by = c("Ligation_ID" = "ligation_ID"), copy = T )
 
+# cleanup 
+rm(c1,c2,c3,c4,c5)
+
 # make a platemap_list of the destination digests 
 plate <- data.frame( Row = rep(LETTERS[1:8], 12), Col = unlist(lapply(1:12, rep, 8)))
 
@@ -45,35 +49,44 @@ if(i < 96){
 dest <- cbind(plate, ligs[ , c("Ligation_ID","extraction_ID", "date")])
 dest$destwell <- paste(dest$Row, dest$Col, sep = "")
 # clean up 
+rm(i)
 dest$Row <- NULL
 dest$Col <- NULL
 dest$Ligation_ID <- NULL
+dest$sourcewell <- NA
 dest$destloc <- "P12"
+dest <- dest[order(dest$extraction_ID), ]
 
-sourceplate <- .......
-for (i in 2:5){
-  source(paste("R/findplate copy 1.R", sep = ""))
-  sourceplate <- rbind(sourceplate, S1)
+# make an extract empty data frame to bind new rows to
+extract <- data.frame(extraction_ID = character(0), date = character(0), destwell = character(0), sourcewell = character(0), destloc = character(0))
+
+# based on the date of the first extract in dest, find the extraction plate locations
+
+
+source("R/eplatebydate.R")
+for (i in 1:3){
+  E1 <- data.frame(labor %>% tbl("extraction") %>% select(extraction_ID, date) %>% filter(date == dest$date[1]), stringsAsFactors = F)
+  eplatebydate(E1)
+  S1$sourceloc <- i
+  extract <- rbind(extract, S1)
 }
+  
+
+
+# move the located extracts to their own table and define a source location
+
+
+# reset the dest table with only extracts that still need to be located and repeat
+
+
 
 # Extracts from Plate 2 ---------------------------------------------------
 # search the database for all of the extracts done on the same day as the first extract we are looking for
 E1 <- data.frame(labor %>% tbl("extraction") %>% select(extraction_ID, date) %>% filter(date == dest$date[1]), stringsAsFactors = F)
 
-# find the ID of the first extract of the plate that holds the extract we want
-S2_first <- E1$extraction_ID[round(which(E1$extraction_ID == dest$extraction_ID[1])/96)*96 + 1]
-
-# file the file list of extracts and locations on our plate 
-filelist <- sort(list.files(path="data/", pattern = S2_first), decreasing=FALSE)
-
-# pick that file from the list
-pick <- paste("data/", filelist[1], sep = "")
-
-# read in the csv of plate locations
-S2 <- read.csv(pick[1], row.names = 1)
-
-# rename the columns
-names(S2) <- c("Row", "Col", "ID")
+# based on the date of the first extract in dest, find the extraction plate locations
+source("R/eplatebydate.R")
+S2 <- eplatebydate(E1,dest)
 
 # match the source well locations to our destination plate extracts
 dest <- merge(dest, S2, by.x = "extraction_ID", by.y = "ID", all.x = T)
@@ -91,28 +104,18 @@ S2$sourceloc <- "P13"
 
 # reset the dest table with only extracts that still need to be located and repeat
 dest <- dest[which(dest$sourcewell == "NANA"), ]
+dest <- dest[order(dest$extraction_ID), ]
 
 # Extracts from Plate 3 ---------------------------------------------------
 # search the database for all of the extracts done on the same day as the first extract we are looking for
 E1 <- data.frame(labor %>% tbl("extraction") %>% select(extraction_ID, date) %>% filter(date == dest$date[1]), stringsAsFactors = F)
 
-# find the ID of the first extract of the plate that holds the extract we want
-S2_first <- E1$extraction_ID[round(which(E1$extraction_ID == dest$extraction_ID[1])/96)*96 + 1]
-
-# file the file list of extracts and locations on our plate 
-filelist <- sort(list.files(path="data/", pattern = S1_first), decreasing=FALSE)
-
-# pick that file from the list
-pick <- paste("data/", filelist[1], sep = "")
-
-# read in the csv of plate locations
-S1 <- read.csv(pick[1], row.names = 1)
-
-# rename the columns
-names(S1) <- c("Row", "Col", "ID")
+# based on the date of the first extract in dest, find the extraction plate locations
+source("R/eplatebydate.R")
+S3 <- eplatebydate(E1,dest)
 
 # match the source well locations to our destination plate extracts
-dest <- merge(dest, S1, by.x = "extraction_ID", by.y = "ID", all.x = T)
+dest <- merge(dest, S3, by.x = "extraction_ID", by.y = "ID", all.x = T)
 
 # combine row and col columns to one plate location
 dest$sourcewell <- paste(dest$Row, dest$Col, sep = "")
@@ -122,13 +125,14 @@ dest$Row <- NULL
 dest$Col <- NULL
 
 # move the located extracts to their own table and define a source location
-S1 <- dest[which(dest$sourcewell != "NANA"), ]
-S1$sourceloc <- "P13"
+S3 <- dest[which(dest$sourcewell != "NANA"), ]
+S3$sourceloc <- "3"
 
 # reset the dest table with only extracts that still need to be located and repeat
 dest <- dest[which(dest$sourcewell == "NANA"), ]
+dest <- dest[order(dest$extraction_ID), ]
 
-# Extracts from Plate 3 ---------------------------------------------------
+# Extracts from Plate 4 ---------------------------------------------------
 # search the database for all of the extracts done on the same day as the first extract we are looking for
 E1 <- data.frame(labor %>% tbl("extraction") %>% select(extraction_ID, date) %>% filter(date == dest$date[1]), stringsAsFactors = F)
 
