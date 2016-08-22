@@ -34,6 +34,9 @@ c4 <- labor %>% tbl("ligation") %>% select(ligation_ID, digest_ID)
 c5 <- left_join(c4, c3, by = "digest_ID")
 ligs <- left_join(ligs, c5, by = c("Ligation_ID" = "ligation_ID"), copy = T )
 
+# remove repeat extraction_IDs
+ligs <- ligs %>% distinct(extraction_ID)
+
 # cleanup 
 rm(c1,c2,c3,c4,c5)
 
