@@ -1,6 +1,4 @@
 # This is a script to find Ligations that need to be re-done due to lab error
-# TODO - remove repeat extract IDs before assigning plate positions
-
 
 # Connect to databases
 suppressMessages(library(dplyr))
@@ -65,17 +63,15 @@ extract <- data.frame(extraction_ID = character(0), date = character(0), destwel
 
 # based on the date of the first extract in dest, find the extraction plate locations
 source("R/eplatebydate.R")
-for (i in 1:11){
+for (i in 1:19){
   E1 <- data.frame(labor %>% tbl("extraction") %>% select(extraction_ID, date) %>% filter(date == dest$date[1]), stringsAsFactors = F)
   eplatebydate(E1)
   S1$sourceloc <- i
   extract <- rbind(extract, S1)
 }
   
-# testing
-rm(E1,extract,S1)
-x <- E1
-rm(digest, E1, extract, plate, plate1, plate2, platemap, S1, x, filelist, first, i, last, S1_first)
+
+
 
 # move the located extracts to their own table and define a source location
 
