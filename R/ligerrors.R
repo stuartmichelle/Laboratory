@@ -64,17 +64,18 @@ dest <- dest[order(dest$extraction_ID), ]
 extract <- data.frame(extraction_ID = character(0), date = character(0), destwell = character(0), sourcewell = character(0), destloc = character(0))
 
 # based on the date of the first extract in dest, find the extraction plate locations
-
-
 source("R/eplatebydate.R")
-for (i in 1:3){
+for (i in 1:11){
   E1 <- data.frame(labor %>% tbl("extraction") %>% select(extraction_ID, date) %>% filter(date == dest$date[1]), stringsAsFactors = F)
   eplatebydate(E1)
   S1$sourceloc <- i
   extract <- rbind(extract, S1)
 }
   
-
+# testing
+rm(E1,extract,S1)
+x <- E1
+rm(digest, E1, extract, plate, plate1, plate2, platemap, S1, x, filelist, first, i, last, S1_first)
 
 # move the located extracts to their own table and define a source location
 
