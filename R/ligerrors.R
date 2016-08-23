@@ -73,7 +73,7 @@ for (i in 1:19){
 # add source positions to each of the source plates
 extract$sourceloc[extract$sourceloc == 1 | extract$sourceloc == 11 ] <- "P13"
 extract$sourceloc[extract$sourceloc == 2 | extract$sourceloc == 12 ] <- "P2"
-extract$sourceloc[extract$sourceloc == 3 | extract$sourceloc == 13 ] <- "P2"
+extract$sourceloc[extract$sourceloc == 3 | extract$sourceloc == 13 ] <- "P3"
 extract$sourceloc[extract$sourceloc == 4 | extract$sourceloc == 14 ] <- "P4"
 extract$sourceloc[extract$sourceloc == 5 | extract$sourceloc == 15 ] <- "P5"
 extract$sourceloc[extract$sourceloc == 6 | extract$sourceloc == 16 ] <- "P6"
