@@ -1,7 +1,10 @@
 # a script for prepping extractions and importing them into the database
 
+# define the interval of sample numbers to be extracted
+span <- 1:94
+
 # make a list of sample IDs in the order they are going to be extracted
-sampID <- paste("APCL16_", formatC(1:94, width = 3, format = "d", flag = "0"), sep = "")
+sampID <- paste("APCL16_", formatC(span, width = 3, format = "d", flag = "0"), sep = "")
 
 # insert the negative controls
 sampID[95:96] <- "XXXX"
@@ -12,9 +15,9 @@ rwnme <- 1:96
 # put the samples in order of extraction (with negative controls inserted)
 
 str1 <- cbind(rwnme[1:11], sampID[1:11])
-str2 <- cbind(rwnme[12], sampID[95])
+str2 <- cbind(rwnme[12], sampID[95]) # because the first blank is in the 12th position
 str3 <- cbind(rwnme[13:60], sampID[12:59])
-str4 <- cbind(rwnme[61], sampID[96])
+str4 <- cbind(rwnme[61], sampID[96]) # because the 2nd blank is in the 61st position
 str5 <- cbind(rwnme[62:96], sampID[60:94])
 
 # and stick all of the rows together
