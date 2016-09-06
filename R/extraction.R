@@ -1,7 +1,7 @@
 # a script for prepping extractions and importing them into the database
 
 # define the interval of sample numbers to be extracted
-span <- 1:94
+span <- 95:188
 
 # make a list of sample IDs in the order they are going to be extracted
 sampID <- paste("APCL16_", formatC(span, width = 3, format = "d", flag = "0"), sep = "")
@@ -24,7 +24,7 @@ str5 <- cbind(rwnme[62:96], sampID[60:94])
 extr <- data.frame(rbind(str1, str2, str3, str4, str5))
 
 # add the date of extraction
-extr$date <- as.Date("2016-08-30")
+extr$date <- as.Date("2016-09-06")
 
 # add the method
 extr$method <- "DNeasy 96"
