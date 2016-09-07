@@ -1,7 +1,7 @@
 # a script for prepping extractions and importing them into the database
 
 # define the interval of sample numbers to be extracted
-span <- 95:188
+span <- 1:94
 
 # make a list of sample IDs in the order they are going to be extracted
 sampID <- paste("APCL16_", formatC(span, width = 3, format = "d", flag = "0"), sep = "")
@@ -40,3 +40,7 @@ platelist$ID <- as.character(platelist$ID)
 platemap <- as.matrix(reshape2::acast(platelist,platelist[,1] ~ platelist[,2]))
 write.csv(platemap, file = paste(Sys.Date(), "extract_map.csv", sep = ""))
 
+### ONLY DO THIS ONCE ### import new rows into database
+
+suppressMessages(library(dplyr))
+labor <- src_mysql(dbname = "Laboratory", host = "amphiprion.deenr.rutgers.edu", user = "michelles", password = "larvae168", port = 3306, create = F)
