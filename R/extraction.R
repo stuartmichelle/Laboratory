@@ -1,7 +1,7 @@
 # a script for prepping extractions and importing them into the database
 
 # define the interval of sample numbers to be extracted
-span <- 95:188
+span <- 1:94
 
 # make a list of sample IDs in the order they are going to be extracted
 sampID <- paste("APCL16_", formatC(span, width = 3, format = "d", flag = "0"), sep = "")
@@ -34,7 +34,7 @@ extr$final_vol <- 200
 
 names(extr) <- c("number", "sample_ID", "date", "method", "final_vol")
 
-# make a plate map
+# make a plate map of sample IDs (for knowing where to place fin clips)
 plate <- data.frame( Row = rep(LETTERS[1:8], 12), Col = unlist(lapply(1:12, rep, 8)))
 platelist <- cbind(plate, extr[,2])
 names(platelist) <- c("Row", "Col", "ID")
@@ -52,5 +52,17 @@ x <- n[1,]
 extr$number <- paste("E", as.integer(extr$number) + x, sep = "")
 
 write.csv(extr, file = paste(Sys.Date(), "extract_list.csv", sep = ""))
+
+# make a plate map of extraction IDs (for a record of where extractions are stored)
+plate <- data.frame( Row = rep(LETTERS[1:8], 12), Col = unlist(lapply(1:12, rep, 8)))
+platelist <- cbind(plate, extr[,1])
+names(platelist) <- c("Row", "Col", "ID")
+first <- platelist$ID[1]
+last <- platelist$ID[nrow(platelist)]
+write.csv(platelist, file = paste("data/", first, "-", last, "list.csv", sep = ""))
+platelist$ID <- as.character(platelist$ID)
+platemap <- as.matrix(reshape2::acast(platelist,platelist[,1] ~ platelist[,2]))
+write.csv(platemap, file = paste("data/", first, "-",last, "map.csv", sep = ""))
+
 
 
