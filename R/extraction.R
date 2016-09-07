@@ -1,7 +1,7 @@
 # a script for prepping extractions and importing them into the database
 
 # define the interval of sample numbers to be extracted
-span <- 1:94
+span <- 95:188
 
 # make a list of sample IDs in the order they are going to be extracted
 sampID <- paste("APCL16_", formatC(span, width = 3, format = "d", flag = "0"), sep = "")
@@ -32,6 +32,8 @@ extr$method <- "DNeasy 96"
 # add the final volume after elution
 extr$final_vol <- 200
 
+names(extr) <- c("number", "sample_ID", "date", "method", "final_vol")
+
 # make a plate map
 plate <- data.frame( Row = rep(LETTERS[1:8], 12), Col = unlist(lapply(1:12, rep, 8)))
 platelist <- cbind(plate, extr[,2])
@@ -44,3 +46,11 @@ write.csv(platemap, file = paste(Sys.Date(), "extract_map.csv", sep = ""))
 
 suppressMessages(library(dplyr))
 labor <- src_mysql(dbname = "Laboratory", host = "amphiprion.deenr.rutgers.edu", user = "michelles", password = "larvae168", port = 3306, create = F)
+
+n <- data.frame(labor %>% tbl("extraction") %>% summarize(n()))
+x <- n[1,]
+extr$number <- paste("E", as.integer(extr$number) + x, sep = "")
+
+write.csv(extr, file = paste(Sys.Date(), "extract_list.csv", sep = ""))
+
+
