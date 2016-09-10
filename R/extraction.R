@@ -1,7 +1,7 @@
 # a script for prepping extractions and importing them into the database
 
 # define the interval of sample numbers to be extracted
-span <- 1:94
+span <- 95:188
 
 # make a list of sample IDs in the order they are going to be extracted
 sampID <- paste("APCL16_", formatC(span, width = 3, format = "d", flag = "0"), sep = "")
@@ -33,6 +33,9 @@ extr$method <- "DNeasy 96"
 extr$final_vol <- 200
 
 names(extr) <- c("number", "sample_ID", "date", "method", "final_vol")
+# fix extraction numbers so the order of extraction numbers matches the order of sample IDs
+extr$number <- NULL
+extr$number <- as.integer(1:96)
 
 # make a plate map of sample IDs (for knowing where to place fin clips)
 plate <- data.frame( Row = rep(LETTERS[1:8], 12), Col = unlist(lapply(1:12, rep, 8)))
@@ -49,7 +52,7 @@ labor <- src_mysql(dbname = "Laboratory", host = "amphiprion.deenr.rutgers.edu",
 
 n <- data.frame(labor %>% tbl("extraction") %>% summarize(n()))
 x <- n[1,]
-extr$number <- paste("E", as.integer(extr$number) + x, sep = "")
+extr$number <- paste("E", (extr$number + x), sep = "")
 
 write.csv(extr, file = paste(Sys.Date(), "extract_list.csv", sep = ""))
 
@@ -64,5 +67,6 @@ platelist$ID <- as.character(platelist$ID)
 platemap <- as.matrix(reshape2::acast(platelist,platelist[,1] ~ platelist[,2]))
 write.csv(platemap, file = paste("data/", first, "-",last, "map.csv", sep = ""))
 
+# import the extract_list into the database
 
 
