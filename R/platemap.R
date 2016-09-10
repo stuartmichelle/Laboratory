@@ -13,10 +13,10 @@ samples <- data.frame(labor %>% tbl("extraction") %>% filter(date == '2016-09-06
 # digest <- E1
 
 # remove quotes from string rows
-extract$extraction_ID <- substr(extract$extraction_ID,2,6)
-extract$sample_ID <- substr(extract$sample_ID, 2,11)
+samples$extraction_ID <- substr(samples$extraction_ID,2,6)
+samples$sample_ID <- substr(samples$sample_ID, 2,11)
 
-plate1 <- cbind(plate, extract[1:96,1])
+plate1 <- cbind(plate, samples[1:96,1])
 names(plate1) <- c("Row", "Col", "ID")
 first <- plate1$ID[1]
 last <- plate1$ID[nrow(plate1)]
@@ -26,7 +26,7 @@ platemap <- as.matrix(reshape2::acast(plate1,plate1[,1] ~ plate1[,2]))
 write.csv(platemap, file = paste("data/", first, "-",last, "map.csv", sep = ""))
 
 
-plate2 <- cbind(plate, digest[97:192,1])
+plate2 <- cbind(plate, samples[97:192,1])
 names(plate2) <- c("Row", "Col", "ID")
 first <- plate2$ID[1]
 last <- plate2$ID[nrow(plate2)]
