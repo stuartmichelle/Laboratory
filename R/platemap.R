@@ -8,7 +8,7 @@ suppressMessages(library(dplyr))
 labor <- src_mysql(dbname = "Laboratory", host = "amphiprion.deenr.rutgers.edu", user = "michelles", password = "larvae168", port = 3306, create = F)
 
 # pull out sample IDs by date of procedure
-extract <- data.frame(labor %>% tbl("extraction") %>% filter(date == '2016-09-06'), stringsAsFactors = F)
+samples <- data.frame(labor %>% tbl("extraction") %>% filter(date == '2016-09-06'), stringsAsFactors = F)
 # digest <- data.frame(labor %>% tbl("digest") %>% filter(date == '2016-04-04'), stringsAsFactors = F)
 # digest <- E1
 
