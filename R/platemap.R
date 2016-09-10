@@ -8,11 +8,15 @@ suppressMessages(library(dplyr))
 labor <- src_mysql(dbname = "Laboratory", host = "amphiprion.deenr.rutgers.edu", user = "michelles", password = "larvae168", port = 3306, create = F)
 
 # pull out sample IDs by date of procedure
-# extract <- data.frame(labor %>% tbl("extraction") %>% filter(date == '2014-05-30'), stringsAsFactors = F)
+extract <- data.frame(labor %>% tbl("extraction") %>% filter(date == '2016-09-06'), stringsAsFactors = F)
 # digest <- data.frame(labor %>% tbl("digest") %>% filter(date == '2016-04-04'), stringsAsFactors = F)
-digest <- E1
+# digest <- E1
 
-plate1 <- cbind(plate, digest[1:96,1])
+# remove quotes from string rows
+extract$extraction_ID <- substr(extract$extraction_ID,2,6)
+extract$sample_ID <- substr(extract$sample_ID, 2,11)
+
+plate1 <- cbind(plate, extract[1:96,1])
 names(plate1) <- c("Row", "Col", "ID")
 first <- plate1$ID[1]
 last <- plate1$ID[nrow(plate1)]
