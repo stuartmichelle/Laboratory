@@ -35,7 +35,7 @@ extr$final_vol <- 200
 names(extr) <- c("number", "sample_ID", "date", "method", "final_vol")
 # fix extraction numbers so the order of extraction numbers matches the order of sample IDs
 extr$number <- NULL
-extr$number <- as.integer(1:96)
+extr$number <- as.integer(97:192)
 
 # make a plate map of sample IDs (for knowing where to place fin clips)
 plate <- data.frame( Row = rep(LETTERS[1:8], 12), Col = unlist(lapply(1:12, rep, 8)))
@@ -45,7 +45,10 @@ platelist$ID <- as.character(platelist$ID)
 platemap <- as.matrix(reshape2::acast(platelist,platelist[,1] ~ platelist[,2]))
 write.csv(platemap, file = paste(Sys.Date(), "extract_map.csv", sep = ""))
 
-### ONLY DO THIS ONCE ### import new rows into database
+
+
+
+### ONLY DO THIS ONCE ### generate extract numbers for database
 
 suppressMessages(library(dplyr))
 labor <- src_mysql(dbname = "Laboratory", host = "amphiprion.deenr.rutgers.edu", user = "michelles", password = "larvae168", port = 3306, create = F)
@@ -54,7 +57,29 @@ n <- data.frame(labor %>% tbl("extraction") %>% summarize(n()))
 x <- n[1,]
 extr$number <- paste("E", (extr$number + x), sep = "")
 
-write.csv(extr, file = paste(Sys.Date(), "extract_list.csv", sep = ""))
+# edit the plate reader document so that it can be imported - delete header/footer, open in excel, check columns and save as csv
+# import plate reader results for quantificaiton
+pr <- read.csv("~/Downloads/drive-download-20160912T121757Z/20160908_plate3.csv", stringsAsFactors = F, header = F)
+
+# add extract numbers (this plate contains the results for E2968-2975 plus others not on this current plate)
+
+# remove rows for non-plate results
+pr <- pr[9:16,]
+# add extract numbers
+pr$number <- 3064:3071
+pr$number <- paste("E", pr$number, sep="")
+
+extr <- merge(extr, pr[,9:10], by.x = "number", by.y = "number")
+names(extr) <- c("number", "sample_ID", "date", "method", "final_vol", "quant")
+
+extr$dna <- extr$final_vol * extr$quant * 0.001
+
+# add the other plate reader results - edit file before importing
+
+
+write.csv(extr, file = paste(Sys.Date(), "extract_list1.csv", sep = ""))
+
+
 
 # make a plate map of extraction IDs (for a record of where extractions are stored)
 plate <- data.frame( Row = rep(LETTERS[1:8], 12), Col = unlist(lapply(1:12, rep, 8)))
