@@ -164,3 +164,27 @@ dest3$destloc <- "P12"
 dest3$sourcevol <- 30
 
 write.csv(dest3, file = paste(Sys.Date(), "biomek_3.csv", sep = ""))
+
+# make a final list and map of digests
+round1 <- read.csv("2016-09-15biomek_1.csv")
+round2 <- read.csv("2016-09-15biomek_2.csv")
+round3 <- read.csv("2016-09-15biomek_3.csv")
+
+round3$run <- 3
+
+# join the lists into one table
+round <- rbind(round1, round2, round3)
+
+# separate out the row and column from the destination plate
+round$Row <- substr(round$destwell,1,1)
+round$Col <- as.integer(substr(round$destwell,2,3)) 
+
+roundlist <- round[order(round$Col), c(2, 10:11)]
+roundlist <- roundlist [ , c(2, 3, 1)]
+write.csv(roundlist, file = "data/biomek20160915_extracttodigestlist.csv")
+roundlist$extraction_ID <- as.character(roundlist$extraction_ID)
+platemap <- as.matrix(reshape2::acast(roundlist,roundlist[,1] ~ roundlist[,2], value.var = "extraction_ID"))
+write.csv(platemap, file = "data/biomek20160915_extracttodigestmap.csv")
+
+### NEXT STEP ###
+# use the digest script to import the list and make digest numbers
