@@ -1,4 +1,9 @@
 # This is a script to find Ligations that need to be re-done due to lab error
+# When the robot was actually used on 9/15/2016, it was discovered that the span 8 pipet 
+# would not move into the P2, P3, P4 positions, nor would it move into the P13 position on 
+# round 3, so for round 3, the P13 was changed to P8 on the fly, and for round 1 and round 2, the
+# P2, P3, P4 positions were deleted and a 4th round was created that contained the rows from round
+# 1 and 2, with the positions changed to P5, 6, 7, 8, 9, and 10. 
 
 # Connect to databases
 suppressMessages(library(dplyr))
