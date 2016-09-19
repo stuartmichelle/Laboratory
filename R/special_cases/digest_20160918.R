@@ -23,7 +23,7 @@ need <- need[order(need$Col,need$Row), ]
 # add digest numbers
 n <- data.frame(labor %>% tbl("digest") %>% summarize(n()))
 x <- n[1,]
-need$digest_ID <- 1:96
+need$digest_ID <- 1:93
 need$digest_ID <- paste("D", (need$digest_ID + x), sep = "")
 
 
