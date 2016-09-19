@@ -1,27 +1,30 @@
-# plan a digest run
+# plan a ligation run
 
-# determine which, if any, samples from the extract plate cannot be digested (DNA > 5ug)
+# find samples that need to be ligated
 
 suppressMessages(library(dplyr))
 labor <- src_mysql(dbname = "Laboratory", host = "amphiprion.deenr.rutgers.edu", user = "michelles", password = "larvae168", port = 3306, create = F)
 
-# pull extract IDs from digest table
-digextr <- data.frame(labor %>% tbl("digest") %>% select(extraction_ID, digest_ID))
+# pull digest IDs from ligation table
+ligdig <- data.frame(labor %>% tbl("ligation") %>% select(ligation_ID, digest_ID))
 
-# pull extract IDs from extraction table
-extr <- data.frame(labor %>% tbl("extraction") %>% select (extraction_ID, date, quant))
+# pull digest IDs from digest table
+dig <- data.frame(labor %>% tbl("digest") %>% select (digest_ID, date, quant))
 
 # merge so that all extraction IDs that have not been digested have an NA for digest ID
-done <- full_join(extr, digextr, by = "extraction_ID")
+done <- full_join(dig, ligdig, by = "digest_ID")
 
 # create a table for all extracts that do not have a digest ID
-need <- done[is.na(done$digest_ID),]
+need <- done[is.na(done$ligation_ID),]
 
-# eliminate samples with less than 1ug of DNA ( less than 25ng/uL)
-need <- need[which(need$quant > 25), ]
+# eliminate samples with less than 10ng of DNA in 22.2µL (0.45ng/µL)
+need <- need[which(need$quant > 0.45), ]
 
-# want to use only extracts from a certain date
-need <- need[which(need$date == as.Date("2016-09-06")), ]
+# want to use only digests from a certain date
+need <- need[which(need$date == as.Date("2016-09-18")), ] # 84 samples
+
+
+##############################################################################
 
 # calculate the amount of DNA that will be added
 need$vol_in <- 30
