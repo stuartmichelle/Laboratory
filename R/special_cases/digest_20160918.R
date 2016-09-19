@@ -99,6 +99,8 @@ need$Col <- NULL
 # create an import file for database
 write.csv(need, file = paste("data/", Sys.Date(), "digestforimport.csv", sep = ""))
 
+# pull in the data instead of recreating it
+need <- read.csv("data/2016-09-19digestforimport.csv", row.names = 1)
 
 # evaluate results of digest
-prob <- need %>% filter(DNA_ng < 100)
+prob <- need %>% filter(AdjResult < 0.45)
