@@ -1,6 +1,6 @@
-This is a reference sheet of example codes you could find useful when accessing the database 
-through R using the dplyr package.  Please let me know if you need to perform a repetitive
-task not listed here and I will add it.
+# This is a reference sheet of example codes you could find useful when accessing the database 
+# through R using the dplyr package.  Please let me know if you need to perform a repetitive
+# task not listed here and I will add it.
 
 # Connect to the databse - replace user & password with your own info, create = F for false, if true, will create a new database
 suppressMessages(library(dplyr))
