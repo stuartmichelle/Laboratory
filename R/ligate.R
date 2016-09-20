@@ -20,8 +20,8 @@ need <- done[is.na(done$ligation_ID),]
 # eliminate samples with less than 10ng of DNA in 22.2µL (0.45ng/µL)
 need <- need[which(need$quant > 0.45), ]
 
-# want to use only digests from a certain date
-need <- need[which(need$date == as.Date("2016-09-18")), ] # 84 samples
+# sort by date and use most recent ligations
+need <- need[order(need$date, decreasing = T), ] 
 
 need$DNA <- NA
 
