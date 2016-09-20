@@ -78,3 +78,6 @@ not_ligated <- not_ligated[which(not_ligated$digest_id != "D1232"), ]
 test <- left_join(ligated, not_ligated, by = "sample_id")
 
 ### NOW ALL THAT IS LEFT ON THE TEST LIST ARE THE SAMPLES WE PLAN TO REGENOTYPE, PERFECT ###
+### the not_ligated list is ~200 samples long, should be enough to plan a libarary around ###
+
+write.csv(not_ligated, file = paste(Sys.Date(), "_need_ligate.csv", sep = ""))
