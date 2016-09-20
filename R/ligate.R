@@ -9,7 +9,7 @@ labor <- src_mysql(dbname = "Laboratory", host = "amphiprion.deenr.rutgers.edu",
 ligdig <- data.frame(labor %>% tbl("ligation") %>% select(ligation_ID, digest_ID))
 
 # pull digest IDs from digest table
-dig <- data.frame(labor %>% tbl("digest") %>% select (digest_ID, date, quant))
+dig <- data.frame(labor %>% tbl("digest") %>% select (digest_ID, date, quant, Notes))
 
 # merge so that all extraction IDs that have not been digested have an NA for digest ID
 done <- full_join(dig, ligdig, by = "digest_ID")
@@ -23,11 +23,45 @@ need <- need[which(need$quant > 0.45), ]
 # want to use only digests from a certain date
 need <- need[which(need$date == as.Date("2016-09-18")), ] # 84 samples
 
+need$DNA <- NA
+
+# calculate the volume of sample to add 200ng
+need$vol_in <- 200/need$quant
+
+twohundy <- need[which(need$vol_in <= 22.2), ]
+twohundy <- twohundy[order(twohundy$vol_in), ]
+
+# limit pool size
+if (nrow(twohundy) > 48){
+  twohundy <- twohundy[1:48, ]
+}
+
+twohundy$DNA <- 200
+
+# remove the two hundies from the need list
+for (i in 1:nrow(twohundy)){
+  j <- which(twohundy$digest_ID[i] == need$digest_ID)
+  need$digest_ID[j] <- NA
+}
+need <- need[!is.na(need$digest_ID), ]
+
+
+# calculate the volume of sample to add 150ng
+need$vol_in <- 150/need$quant
+
+
+
+twohundy <- need[which(need$vol_in <= 22.2), ]
+twohundy <- twohundy[order(twohundy$vol_in), ]
+twohundy <- twohundy[1:48, ]
+twohundy$DNA <- 200
+
+# rejoin twohundy to the need list
+need <- rbind(need, twohundy)
 
 ##############################################################################
 
-# calculate the amount of DNA that will be added
-need$vol_in <- 30
+
 
 need$ng_in <- (need$quant)*30
 
