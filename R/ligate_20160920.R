@@ -35,6 +35,9 @@ not_ligated$DNA[not_ligated$quant > 0.543 & not_ligated$quant <= 2.16] <- 10
 # remove samples that will not be ligated in this batch
 not_ligated <- not_ligated[!is.na(not_ligated$DNA), ]
 
+# clean up environment
+rm(fourty, onehundy, onefifty, sevfive, ten, twenfive, twohundy)
+
 # calculate volume in to 3 digits
 not_ligated$vol_in <- as.numeric(formatC(not_ligated$DNA/not_ligated$quant, digits = 3))
 
@@ -45,27 +48,27 @@ min(not_ligated$vol_in) # 1.5
 # add water
 not_ligated$water <- as.numeric(formatC((22.2 - not_ligated$vol_in), digits = 3))
 
+#remove unneeded columns
+not_ligated <- not_ligated[ , c(2, 5, 10, 11, 12)]
 
+# sort by DNA
+not_ligated <- not_ligated[order(not_ligated$DNA), ]
 
-##############################################################################
-
-
-
-need$ng_in <- (need$quant)*30
-
-# cut down to one plate size
-need <- need[1:96, ]
-
-# add digest numbers
-n <- data.frame(labor %>% tbl("digest") %>% summarize(n()))
+# add ligation numbers
+suppressMessages(library(dplyr))
+labor <- src_mysql(dbname = "Laboratory", host = "amphiprion.deenr.rutgers.edu", user = "michelles", password = "larvae168", port = 3306, create = F)
+n <- data.frame(labor %>% tbl("ligation") %>% summarize(n()))
 x <- n[1,]
-need$digest_ID <- 1:96
-need$digest_ID <- paste("D", (need$digest_ID + x), sep = "")
+not_ligated$ligation_id <- 1:192
+not_ligated$ligation_id <- paste("L", (not_ligated$ligation_id + x), sep = "")
 
+# split table into 2 plates
+plate1 <- not_ligated[1:96, ]
+plate2 <- not_ligated[97:192, ]
 
-# create a platemap
+# create a platemap for first plate
 plate <- data.frame( Row = rep(LETTERS[1:8], 12), Col = unlist(lapply(1:12, rep, 8)))
-platelist <- cbind(plate, need[,4])
+platelist <- cbind(plate, plate1[,2])
 names(platelist) <- c("Row", "Col", "ID")
 first <- platelist$ID[1]
 last <- platelist$ID[nrow(platelist)]
@@ -74,13 +77,33 @@ platelist$ID <- as.character(platelist$ID)
 platemap <- as.matrix(reshape2::acast(platelist,platelist[,1] ~ platelist[,2]))
 write.csv(platemap, file = paste("data/", first, "-",last, "map.csv", sep = ""))
 
-# create a source map
-sourcelist <- cbind(plate, need[1])
+# create a platemap for second plate
+plate <- data.frame( Row = rep(LETTERS[1:8], 12), Col = unlist(lapply(1:12, rep, 8)))
+platelist <- cbind(plate, plate2[,2])
+names(platelist) <- c("Row", "Col", "ID")
+first <- platelist$ID[1]
+last <- platelist$ID[nrow(platelist)]
+write.csv(platelist, file = paste("data/", first, "-", last, "list.csv", sep = ""))
+platelist$ID <- as.character(platelist$ID)
+platemap <- as.matrix(reshape2::acast(platelist,platelist[,1] ~ platelist[,2]))
+write.csv(platemap, file = paste("data/", first, "-",last, "map.csv", sep = ""))
+
+# create a source map for first plate
+sourcelist <- cbind(plate, plate1[ , 1])
 names(sourcelist) <- c("Row", "Col", "ID")
 sourcelist$ID <- as.character(sourcelist$ID)
 sourcemap <- as.matrix(reshape2::acast(sourcelist,sourcelist[,1] ~ sourcelist[,2]))
 write.csv(sourcemap, file = paste("data/", Sys.Date(), "map.csv", sep = ""))
 
+# create a source map for second plate
+sourcelist <- cbind(plate, plate2[ , 1])
+names(sourcelist) <- c("Row", "Col", "ID")
+sourcelist$ID <- as.character(sourcelist$ID)
+sourcemap <- as.matrix(reshape2::acast(sourcelist,sourcelist[,1] ~ sourcelist[,2]))
+write.csv(sourcemap, file = paste("data/", Sys.Date(), "map.csv", sep = ""))
+
+
+###PRINT OUT THE MAPS AND THINK ABOUT HOW TO MAKE A BIOMEK SOURCE FILE ###
 ##################################################################################
 # After digest is complete, add additional info (enzymes, final vol, quant, DNA)
 
