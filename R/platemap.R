@@ -1,4 +1,4 @@
-# a script for platemaps
+# a script to make platemaps
 
 # make a list of columns and rows (the locations for the platemap only)
 plate <- data.frame( Row = rep(LETTERS[1:8], 12), Col = unlist(lapply(1:12, rep, 8)))
@@ -7,14 +7,20 @@ plate <- data.frame( Row = rep(LETTERS[1:8], 12), Col = unlist(lapply(1:12, rep,
 suppressMessages(library(dplyr))
 labor <- src_mysql(dbname = "Laboratory", host = "amphiprion.deenr.rutgers.edu", user = "michelles", password = "larvae168", port = 3306, create = F)
 
-# pull out sample IDs by date of procedure
-samples <- data.frame(labor %>% tbl("extraction") %>% filter(date == '2016-09-06'), stringsAsFactors = F)
-# digest <- data.frame(labor %>% tbl("digest") %>% filter(date == '2016-04-04'), stringsAsFactors = F)
-# digest <- E1
+# # pull out sample IDs by date of procedure
+# samples <- data.frame(labor %>% tbl("extraction") %>% filter(date == '2016-09-06'), stringsAsFactors = F)
 
-# remove quotes from string rows
-samples$extraction_ID <- substr(samples$extraction_ID,2,6)
-samples$sample_ID <- substr(samples$sample_ID, 2,11)
+# find date of desired sample
+digest <- labor %>% tbl("digest") %>% select(digest_id, date) %>% filter(digest_id == 'D2553')
+dig <- collect(digest)
+# get plates for that day
+digest <- labor %>% tbl("digest") %>% filter(date == dig$date)
+samples <- collect(digest)
+
+# 
+# # remove quotes from string rows
+# samples$extraction_ID <- substr(samples$extraction_ID,2,6)
+# samples$sample_ID <- substr(samples$sample_ID, 2,11)
 
 plate1 <- cbind(plate, samples[1:96,1])
 names(plate1) <- c("Row", "Col", "ID")
