@@ -62,9 +62,48 @@ x <- n[1,]
 not_ligated$ligation_id <- 1:192
 not_ligated$ligation_id <- paste("L", (not_ligated$ligation_id + x), sep = "")
 
+# create a water plan
+biomek_water <- not_ligated
+biomek_water$sourceloc <- "P9"
+biomek_water$destloc[1:96] <- "P12"
+biomek_water$destloc[97:192] <- "P13"
+plate <- data.frame( Row = rep(LETTERS[1:8], 12), Col = unlist(lapply(1:12, rep, 8)))
+biomek_water <- cbind(plate, biomek_water)
+biomek_water$sourcewell <- paste(biomek_water$Row, biomek_water$Col, sep = "")
+biomek_water$destwell <- biomek_water$sourcewell
+
+#save it - ### ONLY WRITE THIS FILE ONCE ###
+# write.csv(biomek_water, file = paste(Sys.Date(), "biomek_water.csv", sep = ""))
+
+# create a sample plan
+biomek_sample <- not_ligated
+biomek_sample$destloc[1:96] <- "P12"
+biomek_sample$destloc[97:192] <- "P13"
+plate <- data.frame( Row = rep(LETTERS[1:8], 12), Col = unlist(lapply(1:12, rep, 8)))
+biomek_sample <- cbind(plate, biomek_sample)
+biomek_sample$destwell <- paste(biomek_sample$Row, biomek_sample$Col, sep = "")
+biomek_sample$Row <- NULL
+biomek_sample$Col <- NULL
+
+# find source wells
+
+# first digest_ID is D2553, is on plate D2511-D2606
+S1 <- read.csv("data/D2511-D2606list.csv", row.names = 1)
+biomek_sample <- merge(biomek_sample, S1, by.x = "digest_id", by.y = "ID", all.x = T)
+biomek_sample$sourcewell <- paste(biomek_sample$Row, biomek_sample$Col, sep = "")
+biomek_sample$Row <- NULL
+biomek_sample$Col <- NULL
+S1 <- biomek_sample[which(biomek_sample$sourcewell != "NANA"), ]
+dest <<- dest[which(dest$sourcewell == "NANA"), ]
+dest <<- dest[order(dest$extraction_ID), ]
+
+
+
 # split table into 2 plates
 plate1 <- not_ligated[1:96, ]
 plate2 <- not_ligated[97:192, ]
+
+
 
 # create a platemap for first plate
 plate <- data.frame( Row = rep(LETTERS[1:8], 12), Col = unlist(lapply(1:12, rep, 8)))
