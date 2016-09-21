@@ -100,6 +100,7 @@ for (i in 1:numplate){
     samples <- rbind(samples, S1)
 }
 
+rm(E1, n, S1, first, last, i, numplate, x)
 # 36 warnings, all decimals imported as numeric
 
 # assign run numbers
@@ -126,9 +127,9 @@ run1 <- biomek_water
 run2 <- samples[samples$run == 1, ]
 run3 <- samples[samples$run == 2, ]
 
-write.csv(run1, file = paste(Sys.Date(), "biomek_water.csv", sep = ""))
-write.csv(run2, file = paste(Sys.Date(), "biomek_samples_run1.csv", sep = ""))
-write.csv(run3, file = paste(Sys.Date(), "biomek_samples_run2.csv", sep = ""))
+# write.csv(run1, file = paste(Sys.Date(), "biomek_water.csv", sep = ""))
+# write.csv(run2, file = paste(Sys.Date(), "biomek_samples_run1.csv", sep = ""))
+# write.csv(run3, file = paste(Sys.Date(), "biomek_samples_run2.csv", sep = ""))
 
 # split table into 2 plates
 plate1 <- not_ligated[1:96, ]
@@ -140,10 +141,10 @@ platelist <- cbind(plate, plate1[,2])
 names(platelist) <- c("Row", "Col", "ID")
 first <- platelist$ID[1]
 last <- platelist$ID[nrow(platelist)]
-write.csv(platelist, file = paste("data/", first, "-", last, "list.csv", sep = ""))
+# write.csv(platelist, file = paste("data/", first, "-", last, "list.csv", sep = ""))
 platelist$ID <- as.character(platelist$ID)
 platemap <- as.matrix(reshape2::acast(platelist,platelist[,1] ~ platelist[,2]))
-write.csv(platemap, file = paste("data/", first, "-",last, "map.csv", sep = ""))
+# write.csv(platemap, file = paste("data/", first, "-",last, "map.csv", sep = ""))
 
 # create a platemap for second plate
 plate <- data.frame( Row = rep(LETTERS[1:8], 12), Col = unlist(lapply(1:12, rep, 8)))
@@ -151,24 +152,44 @@ platelist <- cbind(plate, plate2[,2])
 names(platelist) <- c("Row", "Col", "ID")
 first <- platelist$ID[1]
 last <- platelist$ID[nrow(platelist)]
-write.csv(platelist, file = paste("data/", first, "-", last, "list.csv", sep = ""))
+# write.csv(platelist, file = paste("data/", first, "-", last, "list.csv", sep = ""))
 platelist$ID <- as.character(platelist$ID)
 platemap <- as.matrix(reshape2::acast(platelist,platelist[,1] ~ platelist[,2]))
-write.csv(platemap, file = paste("data/", first, "-",last, "map.csv", sep = ""))
+# write.csv(platemap, file = paste("data/", first, "-",last, "map.csv", sep = ""))
 
 # create a source map for first plate
 sourcelist <- cbind(plate, plate1[ , 1])
 names(sourcelist) <- c("Row", "Col", "ID")
 sourcelist$ID <- as.character(sourcelist$ID)
 sourcemap <- as.matrix(reshape2::acast(sourcelist,sourcelist[,1] ~ sourcelist[,2]))
-write.csv(sourcemap, file = paste("data/", Sys.Date(), "map.csv", sep = ""))
+# write.csv(sourcemap, file = paste("data/", Sys.Date(), "map1.csv", sep = ""))
 
 # create a source map for second plate
 sourcelist <- cbind(plate, plate2[ , 1])
 names(sourcelist) <- c("Row", "Col", "ID")
 sourcelist$ID <- as.character(sourcelist$ID)
 sourcemap <- as.matrix(reshape2::acast(sourcelist,sourcelist[,1] ~ sourcelist[,2]))
-write.csv(sourcemap, file = paste("data/", Sys.Date(), "map.csv", sep = ""))
+# write.csv(sourcemap, file = paste("data/", Sys.Date(), "map2.csv", sep = ""))
 
 # create an import file for database
-write.csv(need, file = paste("data/", Sys.Date(), "digestforimport.csv", sep = ""))
+biomek_sample <- samples[ , c(2, 1, 4, 5, 6)]
+
+# add date
+biomek_sample$date <- as.Date("2016-09-21")
+
+# add barcode
+biomek_sample <- biomek_sample[order(biomek_sample$ligation_id), ]
+biomek_sample$barcode <- 1:48
+
+# add pool
+n <- data.frame(labor %>% tbl("pool") %>% summarize(n()))
+x <- n[1,]
+pool_id <- 1:4
+pool_id <- paste("P", formatC(pool_id + x, width = 3, format = "d", flag = "0"), sep = "")
+biomek_sample$pool[1:48] <- pool_id[1]
+biomek_sample$pool[49:96] <- pool_id[2]
+biomek_sample$pool[97:144] <- pool_id[3]
+biomek_sample$pool[145:192] <- pool_id[4]
+
+# create csv to import to database
+# write.csv(biomek_sample, file = paste("data/", Sys.Date(), "ligateforimport.csv", sep = ""))
