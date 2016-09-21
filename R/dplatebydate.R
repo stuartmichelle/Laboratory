@@ -5,11 +5,11 @@ dplatebydate <- function(x){
   filelist <- sort(list.files(path="data/", pattern = S1_first), decreasing=FALSE)
   pick <- paste("data/", filelist[1], sep = "")
   S1 <<- read.csv(pick[1], row.names = 1)
-  dest <<- merge(dest, S1, by.x = "extraction_ID", by.y = "ID", all.x = T)
-  dest$sourcewell <<- paste(dest$Row, dest$Col, sep = "")
-  dest$Row <<- NULL
-  dest$Col <<- NULL
-  S1 <<- dest[which(dest$sourcewell != "NANA"), ]
-  dest <<- dest[which(dest$sourcewell == "NANA"), ]
-  dest <<- dest[order(dest$extraction_ID), ]
+  biomek_sample <<- merge(biomek_sample, S1, by.x = "digest_id", by.y = "ID", all.x = T)
+  biomek_sample$sourcewell <<- paste(biomek_sample$Row, biomek_sample$Col, sep = "")
+  biomek_sample$Row <<- NULL
+  biomek_sample$Col <<- NULL
+  S1 <<- biomek_sample[which(biomek_sample$sourcewell != "NANA"), ]
+  biomek_sample <<- biomek_sample[which(biomek_sample$sourcewell == "NANA"), ]
+  biomek_sample <<- biomek_sample[order(biomek_sample$digest_id), ]
 }
