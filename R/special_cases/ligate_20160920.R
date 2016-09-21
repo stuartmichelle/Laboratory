@@ -49,7 +49,7 @@ min(not_ligated$vol_in) # 1.5
 not_ligated$water <- as.numeric(formatC((22.2 - not_ligated$vol_in), digits = 3))
 
 #remove unneeded columns
-not_ligated <- not_ligated[ , c(2, 5, 10, 11, 12)]
+not_ligated <- not_ligated[ , c(2, 5, 6, 10, 11, 12)]
 
 # sort by DNA
 not_ligated <- not_ligated[order(not_ligated$DNA), ]
@@ -86,24 +86,50 @@ biomek_sample$Row <- NULL
 biomek_sample$Col <- NULL
 
 # find source wells
+source("R/dplatebydate.R")
 
-# first digest_ID is D2553, is on plate D2511-D2606
-S1 <- read.csv("data/D2511-D2606list.csv", row.names = 1)
-biomek_sample <- merge(biomek_sample, S1, by.x = "digest_id", by.y = "ID", all.x = T)
-biomek_sample$sourcewell <- paste(biomek_sample$Row, biomek_sample$Col, sep = "")
-biomek_sample$Row <- NULL
-biomek_sample$Col <- NULL
-S1 <- biomek_sample[which(biomek_sample$sourcewell != "NANA"), ]
-dest <<- dest[which(dest$sourcewell == "NANA"), ]
-dest <<- dest[order(dest$extraction_ID), ]
+# make an extract empty data frame to bind new rows to
+samples <- data.frame(digest_ID = character(0), dnavol = character(0), watervol = character(0), ligation_ID = character(0), destloc = character(0), welldest = character(0), wellsource = character(0), sourceloc= character(0))
 
+numplate <- 9 # number of expected source plates
+for (i in 1:numplate){
+    E1 <- labor %>% tbl("digest") %>% select(digest_id, date) %>% filter(date == biomek_sample$date[1])
+    E1 <- collect(E1)
+    dplatebydate(E1)
+    S1$sourceloc <- i
+    samples <- rbind(samples, S1)
+}
+
+# 36 warnings, all decimals imported as numeric
+
+# assign run numbers
+samples$run <- NA
+samples$run[samples$sourceloc == 1] <- 1
+samples$run[samples$sourceloc == 2] <- 1
+samples$run[samples$sourceloc == 3] <- 1
+samples$run[samples$sourceloc == 4] <- 1
+samples$run[samples$sourceloc == 5] <- 2
+samples$run[samples$sourceloc == 6] <- 2
+samples$run[samples$sourceloc == 7] <- 2
+samples$run[samples$sourceloc == 8] <- 2
+samples$run[samples$sourceloc == 9] <- 2
+
+# assign source locations
+samples$sourceloc[samples$sourceloc == 1 | samples$sourceloc == 5 ] <- "P10"
+samples$sourceloc[samples$sourceloc == 2 | samples$sourceloc == 6 ] <- "P5"
+samples$sourceloc[samples$sourceloc == 3 | samples$sourceloc == 7 ] <- "P6"
+samples$sourceloc[samples$sourceloc == 4 | samples$sourceloc == 8 ] <- "P7"
+samples$sourceloc[samples$sourceloc == 9] <- "P9"
+
+# split table into 2 runs plus a water run
+run1 <- biomek_water
+run2 <- samples[samples$run == 1, ]
+run3 <- samples[samples$run == 2, ]
 
 
 # split table into 2 plates
 plate1 <- not_ligated[1:96, ]
 plate2 <- not_ligated[97:192, ]
-
-
 
 # create a platemap for first plate
 plate <- data.frame( Row = rep(LETTERS[1:8], 12), Col = unlist(lapply(1:12, rep, 8)))
@@ -140,11 +166,6 @@ names(sourcelist) <- c("Row", "Col", "ID")
 sourcelist$ID <- as.character(sourcelist$ID)
 sourcemap <- as.matrix(reshape2::acast(sourcelist,sourcelist[,1] ~ sourcelist[,2]))
 write.csv(sourcemap, file = paste("data/", Sys.Date(), "map.csv", sep = ""))
-
-
-###PRINT OUT THE MAPS AND THINK ABOUT HOW TO MAKE A BIOMEK SOURCE FILE ###
-##################################################################################
-# After digest is complete, add additional info (enzymes, final vol, quant, DNA)
 
 # create an import file for database
 write.csv(need, file = paste("data/", Sys.Date(), "digestforimport.csv", sep = ""))

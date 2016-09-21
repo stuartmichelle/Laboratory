@@ -11,7 +11,7 @@ labor <- src_mysql(dbname = "Laboratory", host = "amphiprion.deenr.rutgers.edu",
 # samples <- data.frame(labor %>% tbl("extraction") %>% filter(date == '2016-09-06'), stringsAsFactors = F)
 
 # find date of desired sample
-digest <- labor %>% tbl("digest") %>% select(digest_id, date) %>% filter(digest_id == 'D2553')
+digest <- labor %>% tbl("digest") %>% select(digest_id, date) %>% filter(digest_id == S1_first)
 dig <- collect(digest)
 # get plates for that day
 digest <- labor %>% tbl("digest") %>% filter(date == dig$date)
@@ -21,6 +21,15 @@ samples <- collect(digest)
 # # remove quotes from string rows
 # samples$extraction_ID <- substr(samples$extraction_ID,2,6)
 # samples$sample_ID <- substr(samples$sample_ID, 2,11)
+
+# # cut down to the number of rows needed
+# i <- nrow(samples)
+# if(i < 96){
+#   plate <- plate[1:i,]
+# }
+
+# if plate is smaller than 96,
+# plate1 <- cbind(plate, samples[ , 1])
 
 plate1 <- cbind(plate, samples[1:96,1])
 names(plate1) <- c("Row", "Col", "ID")
