@@ -126,6 +126,9 @@ run1 <- biomek_water
 run2 <- samples[samples$run == 1, ]
 run3 <- samples[samples$run == 2, ]
 
+write.csv(run1, file = paste(Sys.Date(), "biomek_water.csv", sep = ""))
+write.csv(run2, file = paste(Sys.Date(), "biomek_samples_run1.csv", sep = ""))
+write.csv(run3, file = paste(Sys.Date(), "biomek_samples_run2.csv", sep = ""))
 
 # split table into 2 plates
 plate1 <- not_ligated[1:96, ]
