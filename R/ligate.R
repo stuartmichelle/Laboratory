@@ -1,5 +1,7 @@
 # plan a ligation run
 
+### IN THIS SCRIPT, ALL OF THE WRITE.CSV LINES HAVE BEEN COMMENTED OUT BECAUSE THESE SAMPLES HAVE ALREADY BEEN WRITTEN TO FILE, UNCOMMENT FOR NEW SAMPLES ###
+
 # find samples that need to be ligated
 
 suppressMessages(library(dplyr))
@@ -81,20 +83,21 @@ platelist <- cbind(plate, need[,4])
 names(platelist) <- c("Row", "Col", "ID")
 first <- platelist$ID[1]
 last <- platelist$ID[nrow(platelist)]
-write.csv(platelist, file = paste("data/", first, "-", last, "list.csv", sep = ""))
+# write.csv(platelist, file = paste("data/", first, "-", last, "list.csv", sep = ""))
 platelist$ID <- as.character(platelist$ID)
 platemap <- as.matrix(reshape2::acast(platelist,platelist[,1] ~ platelist[,2]))
-write.csv(platemap, file = paste("data/", first, "-",last, "map.csv", sep = ""))
+# write.csv(platemap, file = paste("data/", first, "-",last, "map.csv", sep = ""))
 
 # create a source map
 sourcelist <- cbind(plate, need[1])
 names(sourcelist) <- c("Row", "Col", "ID")
 sourcelist$ID <- as.character(sourcelist$ID)
 sourcemap <- as.matrix(reshape2::acast(sourcelist,sourcelist[,1] ~ sourcelist[,2]))
-write.csv(sourcemap, file = paste("data/", Sys.Date(), "map.csv", sep = ""))
+# write.csv(sourcemap, file = paste("data/", Sys.Date(), "map.csv", sep = ""))
 
 ##################################################################################
 # After digest is complete, add additional info (enzymes, final vol, quant, DNA)
 
 # create an import file for database
-write.csv(need, file = paste("data/", Sys.Date(), "digestforimport.csv", sep = ""))
+# write.csv(need, file = paste("data/", Sys.Date(), "digestforimport.csv", sep = ""))
+

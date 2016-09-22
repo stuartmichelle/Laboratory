@@ -1,5 +1,7 @@
 # plan a ligation run
 
+### IN THIS SCRIPT, ALL OF THE WRITE.CSV LINES HAVE BEEN COMMENTED OUT BECAUSE THESE SAMPLES HAVE ALREADY BEEN WRITTEN TO FILE, UNCOMMENT FOR NEW SAMPLES ###
+
 # run the find samples code first to generate a not_ligated table
 not_ligated <- data.frame(read.csv("2016-09-20_need_ligate.csv"))
 
@@ -193,3 +195,6 @@ biomek_sample$pool[145:192] <- pool_id[4]
 
 # create csv to import to database
 # write.csv(biomek_sample, file = paste("data/", Sys.Date(), "ligateforimport.csv", sep = ""))
+
+# create a pool csv to import to database
+
