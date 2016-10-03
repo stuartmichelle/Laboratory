@@ -197,4 +197,12 @@ biomek_sample$pool[145:192] <- pool_id[4]
 # write.csv(biomek_sample, file = paste("data/", Sys.Date(), "ligateforimport.csv", sep = ""))
 
 # create a pool csv to import to database
+pool <- as.data.frame((unique(biomek_sample$pool)))
+pool$date <- as.Date("2016-09-22")
+names(pool) <- c("pool_id", "date")
+pool$pool_id <- paste("Pool", substr(pool$pool_id,2,4), sep = "")
+pool$buffer <- 30
+pool$size <- 375
+pool$vol_from_pippin <- 40
 
+# write.csv(pool, file = paste("data/", Sys.Date(), "poolforimport.csv", sep = ""))
