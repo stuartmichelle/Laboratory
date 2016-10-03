@@ -32,3 +32,6 @@ pcr <- pcr %>% mutate(product = 30*10/pcr$nmol_L)
 
 # calculate the amount of water to add 
 pcr <- pcr %>% mutate(water = 30-pcr$product)
+
+# add seq number
+pcr$SEQ <- "SEQ17"
