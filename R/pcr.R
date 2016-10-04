@@ -35,7 +35,9 @@ pcr <- pcr %>% mutate(nmol_L = pcr$quant/(660*pcr$bp)*1000000)
 pcr <- pcr %>% mutate(product = 30*10/pcr$nmol_L)
 
 # calculate the amount of water to add 
-pcr <- pcr %>% mutate(water = 30-pcr$product)
+pcr <- pcr %>% mutate(water = 30 - pcr$product)
 
 # add seq number
 pcr$SEQ <- "SEQ17"
+
+# write.csv(pcr, file = paste("data/", Sys.Date(), "forpcrimport.csv"))
