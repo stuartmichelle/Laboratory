@@ -3,10 +3,11 @@
 suppressMessages(library(dplyr))
 
 # use the pool table from the ligation script to move forward
-pcr <- pool
+# pcr <- pool
 
 # or, if pool table is unavailable, make a table of pools to be used
-# pcr <- c("P069", "P070", "P071", "P072")
+pcr <- as.data.frame(c("P069", "P070", "P071", "P072"))
+names(pcr) <- "pool_id"
 
 ### for illumina adapters use combinations: 1,8,10,11, or 6,12,*, *.  More than 4 pools can receive any other barcode in addition to 1, 8, 10, 11.
 
@@ -22,7 +23,10 @@ pcr$vol_rxns <- 20
 pcr$bp <- 430
 
 # input qubit results of PCR quantification after cleanup
-pcr$quant <-
+pcr$quant[1] <- 15.9
+pcr$quant[2] <- 27.6
+pcr$quant[3] <- 23.6
+pcr$quant[4] <- 24.8
 
 # calculate the nmol/L
 pcr <- pcr %>% mutate(nmol_L = pcr$quant/(660*pcr$bp)*1000000)
