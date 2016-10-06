@@ -29,7 +29,7 @@ todig$ng_in <- (todig$quant)*(todig$vol_in)
 todig <- todig[1:96, ]
 
 # add digest numbers
-n <- data.frame(labor %>% tbl("digest") %>% summarize(n()))
+suppressWarnings(n <- labor %>% tbl("digest") %>% summarize(n()) %>% collect())
 x <- n[1,]
 todig$digest_ID <- 1:96
 todig$digest_ID <- paste("D", (todig$digest_ID + x), sep = "")
@@ -41,20 +41,20 @@ platelist <- cbind(plate, todig[,4])
 names(platelist) <- c("Row", "Col", "ID")
 first <- platelist$ID[1]
 last <- platelist$ID[nrow(platelist)]
-write.csv(platelist, file = paste("data/", first, "-", last, "list.csv", sep = ""))
+# write.csv(platelist, file = paste("data/", first, "-", last, "list.csv", sep = ""))
 platelist$ID <- as.character(platelist$ID)
 platemap <- as.matrix(reshape2::acast(platelist,platelist[,1] ~ platelist[,2]))
-write.csv(platemap, file = paste("data/", first, "-",last, "map.csv", sep = ""))
+# write.csv(platemap, file = paste("data/", first, "-",last, "map.csv", sep = ""))
 
 # create a source map
 sourcelist <- cbind(plate, todig[1])
 names(sourcelist) <- c("Row", "Col", "ID")
 sourcelist$ID <- as.character(sourcelist$ID)
 sourcemap <- as.matrix(reshape2::acast(sourcelist,sourcelist[,1] ~ sourcelist[,2]))
-write.csv(sourcemap, file = paste("data/", Sys.Date(), "map.csv", sep = ""))
+# write.csv(sourcemap, file = paste("data/", Sys.Date(), "map.csv", sep = ""))
 
 ##################################################################################
 # After digest is complete, add additional info (enzymes, final vol, quant, DNA)
 
 # create an import file for database
-write.csv(todig, file = paste("data/", Sys.Date(), "digestforimport.csv", sep = ""))
+# write.csv(todig, file = paste("data/", Sys.Date(), "digestforimport.csv", sep = ""))
