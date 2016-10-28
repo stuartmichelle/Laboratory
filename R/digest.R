@@ -5,59 +5,56 @@
 suppressMessages(library(dplyr))
 labor <- src_mysql(dbname = "Laboratory", host = "amphiprion.deenr.rutgers.edu", user = "michelles", password = "larvae168", port = 3306, create = F)
 
-# pull extract IDs from digest table
-digextr <- data.frame(labor %>% tbl("digest") %>% select(extraction_ID, digest_ID))
+# access all digest and extract IDs
+suppressWarnings(digextr <- labor %>% tbl("digest") %>% select(extraction_id, digest_id) %>% collect())
 
-# pull extract IDs from extraction table
-extr <- data.frame(labor %>% tbl("extraction") %>% select (extraction_ID, date, quant))
+# attach extract date and quantification
+suppressWarnings(extr <- labor %>% tbl("extraction") %>% select (extraction_id, date, quant) %>% collect())
 
 # merge so that all extraction IDs that have not been digested have an NA for digest ID
-done <- full_join(extr, digextr, by = "extraction_ID")
+dig_extr <- full_join(extr, digextr, by = "extraction_id")
 
 # create a table for all extracts that do not have a digest ID
-need <- done[is.na(done$digest_ID),]
-
 # eliminate samples with less than 1ug of DNA ( less than 25ng/uL)
-need <- need[which(need$quant > 25), ]
+todig <- subset(dig_extr, is.na(digest_id) & quant > 25)
 
 # want to use only extracts from a certain date
-need <- need[which(need$date == as.Date("2016-09-06")), ]
+todig <- subset(todig, date == as.Date("2016-09-06"))
 
 # calculate the amount of DNA that will be added
-need$vol_in <- 30
-
-need$ng_in <- (need$quant)*30
+todig$vol_in <- 30
+todig$ng_in <- (todig$quant)*(todig$vol_in)
 
 # cut down to one plate size
-need <- need[1:96, ]
+todig <- todig[1:96, ]
 
 # add digest numbers
-n <- data.frame(labor %>% tbl("digest") %>% summarize(n()))
+suppressWarnings(n <- labor %>% tbl("digest") %>% summarize(n()) %>% collect())
 x <- n[1,]
-need$digest_ID <- 1:96
-need$digest_ID <- paste("D", (need$digest_ID + x), sep = "")
+todig$digest_ID <- 1:96
+todig$digest_ID <- paste("D", (todig$digest_ID + x), sep = "")
 
 
 # create a platemap
 plate <- data.frame( Row = rep(LETTERS[1:8], 12), Col = unlist(lapply(1:12, rep, 8)))
-platelist <- cbind(plate, need[,4])
+platelist <- cbind(plate, todig[,4])
 names(platelist) <- c("Row", "Col", "ID")
 first <- platelist$ID[1]
 last <- platelist$ID[nrow(platelist)]
-write.csv(platelist, file = paste("data/", first, "-", last, "list.csv", sep = ""))
+# write.csv(platelist, file = paste("data/", first, "-", last, "list.csv", sep = ""))
 platelist$ID <- as.character(platelist$ID)
 platemap <- as.matrix(reshape2::acast(platelist,platelist[,1] ~ platelist[,2]))
-write.csv(platemap, file = paste("data/", first, "-",last, "map.csv", sep = ""))
+# write.csv(platemap, file = paste("data/", first, "-",last, "map.csv", sep = ""))
 
 # create a source map
-sourcelist <- cbind(plate, need[1])
+sourcelist <- cbind(plate, todig[1])
 names(sourcelist) <- c("Row", "Col", "ID")
 sourcelist$ID <- as.character(sourcelist$ID)
 sourcemap <- as.matrix(reshape2::acast(sourcelist,sourcelist[,1] ~ sourcelist[,2]))
-write.csv(sourcemap, file = paste("data/", Sys.Date(), "map.csv", sep = ""))
+# write.csv(sourcemap, file = paste("data/", Sys.Date(), "map.csv", sep = ""))
 
 ##################################################################################
 # After digest is complete, add additional info (enzymes, final vol, quant, DNA)
 
 # create an import file for database
-write.csv(need, file = paste("data/", Sys.Date(), "digestforimport.csv", sep = ""))
+# write.csv(todig, file = paste("data/", Sys.Date(), "digestforimport.csv", sep = ""))

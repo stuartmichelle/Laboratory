@@ -8,7 +8,7 @@ not_ligated <- data.frame(read.csv("2016-09-20_need_ligate.csv"))
 # sort by quantification
 not_ligated <- not_ligated[order(not_ligated$quant), ]
 
-# identify samples that can be ligated at different ng
+# identify samples that can be ligated at different ng - tweak the bounds until you get 48 in pool
 twohundy <- not_ligated[which(not_ligated$quant > 9.45), ]
 nrow(twohundy) # 48
 not_ligated$DNA[not_ligated$quant > 9.45] <- 200
