@@ -1,7 +1,8 @@
-# add wells and plate to database after the fact
+
+# add wells and plate to database after the fact - list has already been made
 
 # read digest platemap_list into R
-digests <- "data/D3096-D3191_list.csv"
+digests <- "data/D2511-D2606list.csv"
 name <- substr(digests, 6, 16)
 
 diglist <- read.csv(digests, row.names = 1)
@@ -43,4 +44,5 @@ dbWriteTable(labors,"digest",data.frame(digest_new), row.names = FALSE, overwrit
 dbDisconnect(labors)
 rm(labors)
 
-rm(digest, digest_new, diglist)
+rm(digest, digest_new, diglist, labor)
+
