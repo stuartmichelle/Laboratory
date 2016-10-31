@@ -13,19 +13,16 @@ labor <- src_mysql(dbname = "Laboratory", host = "amphiprion.deenr.rutgers.edu",
 diglist <- labor %>% tbl("digest") %>% filter(plate == platename) %>% select(digest_id, well) %>% collect()
 
 # separate out row from column in wells
-diglist$R
+diglist$Row <- substr(diglist$well, 1, 1)
+diglist$Col <- substr(diglist$well, 2, 2)
 
 # split Col 1 into a second plate 
 dig2 <- diglist[(diglist$Col == 1), ]
 dig1 <- diglist[(diglist$Col != 1), ]
 
-# create a column of Wells
-dig1$Wells <- paste(dig1$Row, dig1$Col, sep = "")
 
 # correct the locations of dig2 to account for being moved to second plate
 dig2$Col <- extracol
-# create a column of Wells
-dig2$Wells <- paste(dig2$Row, dig2$Col, sep = "")
 
 
 # Read in quantification results ------------------------------------------
@@ -44,7 +41,7 @@ dat1 <- read.table(text = strs,  skip = linestoskip, sep = "\t", fill = T, heade
 dat1 <- dat1[1:(which(dat1$Sample == "Group Summaries")-1), ]
 
 # read in names for the samples
-quant1 <- dplyr::left_join(dat1, dig1, by = "Wells")
+quant1 <- dplyr::left_join(dat1, dig1, by = c("Wells" = "well"))
 quant1 <- quant1[ , c("ID", "AdjResult")]
 colnames(quant1) <- c("digest_id", "quant")
 
@@ -61,7 +58,7 @@ dat2 <- read.table(text = strs,  skip = linestoskip, sep = "\t", fill = T, heade
 dat2 <- dat2[1:(which(dat2$Sample == "Group Summaries")-1), ]
 
 # read in names for the samples
-quant2 <- dplyr::left_join(dat2, dig2, by = "Wells")
+quant2 <- dplyr::left_join(dat2, dig2, by = c("Wells" = "well"))
 quant2 <- quant2[ , c("ID", "AdjResult")]
 colnames(quant2) <- c("digest_id", "quant")
 
