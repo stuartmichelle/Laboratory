@@ -1,7 +1,8 @@
 # add wells and plate to database after the fact
 
 # read digest platemap_list into R
-digests <- "data/D3247-D3339list.csv"
+digests <- "data/D3096-D3191_list.csv"
+name <- substr(digests, 6, 16)
 
 diglist <- read.csv(digests, row.names = 1)
 
@@ -9,7 +10,7 @@ diglist <- read.csv(digests, row.names = 1)
 diglist$wells <- paste(diglist$Row, diglist$Col, sep = "")
 
 # create a column of Platenames
-diglist$plate <- "D3247-D3339"
+diglist$plate <- name
 
 # Upload results to database ----------------------------------------------
 
@@ -29,9 +30,7 @@ suppressWarnings(digest <- labor %>% tbl("digest") %>% collect())
 
 digest_new <- digest # make a copy of the original database table just in case something goes wrong
 
-digest_new$well <- NA
-digest_new$plate <- NA
-digest_new$well <- ifelse(is.na(digest_new$well), diglist$well[match(digest_new$digest_id, diglist$ID)], digest_new$wells)
+digest_new$well <- ifelse(is.na(digest_new$well), diglist$well[match(digest_new$digest_id, diglist$ID)], digest_new$well)
 digest_new$plate <- ifelse(is.na(digest_new$plate), diglist$plate[match(digest_new$digest_id, diglist$ID)], digest_new$plate)
 
 # append to the data in the database using RMySQL
@@ -43,3 +42,5 @@ dbWriteTable(labors,"digest",data.frame(digest_new), row.names = FALSE, overwrit
 
 dbDisconnect(labors)
 rm(labors)
+
+rm(digest, digest_new, diglist)
