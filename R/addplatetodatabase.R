@@ -1,11 +1,87 @@
+# for plate maps that currently only exist on google sheets
+# make a list of columns and rows (the locations for the platemap only)
+plate <- data.frame( Row = rep(LETTERS[1:8], 12), Col = unlist(lapply(1:12, rep, 8)))
+
+# import lab ids for the plate
+suppressMessages(library(dplyr))
+labor <- src_mysql(dbname = "Laboratory", host = "amphiprion.deenr.rutgers.edu", user = "michelles", password = "larvae168", port = 3306, create = F)
+
+
+# get samples for date of interest 
+digest <- labor %>% tbl("digest") %>% filter(date == "2015-05-12") %>% collect()
+
+# # if plate is smaller than 96 wells:
+# # cut down to the number of rows needed
+# i <- nrow(digest)
+# if(i < 96){
+#   plate <- plate[1:i,]
+# }
+# plate1 <- cbind(plate, digest[ , 1])
+# # end small plate section
+
+# 
+plate1 <- cbind(plate, digest[1:96,1])
+
+names(plate1) <- c("Row", "Col", "ID")
+first <- plate1$ID[1]
+last <- plate1$ID[nrow(plate1)]
+# write.csv(plate1, file = paste("data/", first, "-", last, "list.csv", sep = ""))
+plate1$ID <- as.character(plate1$ID)
+platemap1 <- as.matrix(reshape2::acast(plate1,plate1[,1] ~ plate1[,2]))
+# write.csv(platemap1, file = paste("data/", first, "-",last, "map.csv", sep = ""))
+
+# plate2 <- cbind(plate, digest[97:192,1])
+# names(plate2) <- c("Row", "Col", "ID")
+# first <- plate2$ID[1]
+# last <- plate2$ID[nrow(plate2)]
+# # write.csv(plate2, file = paste("data/", first, "-", last, "list.csv", sep = ""))
+# plate2$ID <- as.character(plate2$ID)
+# platemap2 <- as.matrix(reshape2::acast(plate2,plate2[,1] ~ plate2[,2]))
+# # write.csv(platemap2, file = paste("data/", first, "-",last, "map.csv", sep = ""))
+# 
+# 
+# plate3 <- cbind(plate, digest[193:288,1])
+# names(plate3) <- c("Row", "Col", "ID")
+# first <- plate3$ID[1]
+# last <- plate3$ID[nrow(plate3)]
+# # write.csv(plate3, file = paste("data/", first, "-", last, "list.csv", sep = ""))
+# plate3$ID <- as.character(plate3$ID)
+# platemap3 <- as.matrix(reshape2::acast(plate3,plate3[,1] ~ plate3[,2]))
+# # write.csv(platemap, file = paste("data/", first, "-",last, "map.csv", sep = ""))
+# 
+# plate4 <- cbind(plate, digest[289:384,1])
+# names(plate4) <- c("Row", "Col", "ID")
+# first <- plate4$ID[1]
+# last <- plate4$ID[nrow(plate4)]
+# # write.csv(plate4, file = paste("data/", first, "-", last, "list.csv", sep = ""))
+# plate4$ID <- as.character(plate4$ID)
+# platemap <- as.matrix(reshape2::acast(plate4,plate4[,1] ~ plate4[,2]))
+# # write.csv(platemap, file = paste("data/", first, "-",last, "map.csv", sep = ""))
+
+### COMPARE THE PLATEMAP TO THE GOOGLE SHEET TO MAKE SURE THERE ARE NO DIFFERENCES ###
 
 # add wells and plate to database after the fact - list has already been made
 
-# read digest platemap_list into R
-digests <- "data/D2511-D2606list.csv"
-name <- substr(digests, 6, 16)
+# # if starting from a pre-existing file
+# # read digest platemap_list into R
+# digests <- "data/D2511-D2606list.csv"
+# name <- substr(digests, 6, 16)
+# diglist <- read.csv(digests, row.names = 1)
 
-diglist <- read.csv(digests, row.names = 1)
+# if continuing code from above
+diglist <- plate1
+name <- paste(plate1[1,3], "-", plate1[nrow(plate1), 3], sep = "")
+
+# # if more than one plate
+# diglist <- plate2
+# name <- paste(plate2[1,3], "-", plate2[nrow(plate2), 3], sep = "")
+
+# diglist <- plate3
+# name <- paste(plate3[1,3], "-", plate3[nrow(plate3), 3], sep = "")
+
+# diglist <- plate4
+# name <- paste(plate4[1,3], "-", plate4[nrow(plate4), 3], sep = "")
+
 
 # create a column of Wells
 diglist$wells <- paste(diglist$Row, diglist$Col, sep = "")
@@ -18,10 +94,6 @@ diglist$plate <- name
 ### THIS STEP PULLS IN ALL OF THE DIGEST TABLE, ADDS THE QUANT DATA, AND THEN OVERWRITES ALL OF THE DIGEST TABLE WITH A NEW ONE CONTAINING THE NEW DATA, PROCEED WITH ***CAUTION*** ###
 
 # Retrieve the digest data from the database using dplyr
-suppressMessages(library(dplyr))
-labor <- src_mysql(dbname = "Laboratory", host = "amphiprion.deenr.rutgers.edu", user = "michelles", password = "larvae168", port = 3306, create = F)
-
-# pull in all of the digest data
 suppressWarnings(digest <- labor %>% tbl("digest") %>% collect())
 
 # add new quant data to existing data
@@ -44,5 +116,5 @@ dbWriteTable(labors,"digest",data.frame(digest_new), row.names = FALSE, overwrit
 dbDisconnect(labors)
 rm(labors)
 
-rm(digest, digest_new, diglist, labor)
+rm(digest, digest_new, diglist, plate1, platemap1, first, last, name, i)
 
