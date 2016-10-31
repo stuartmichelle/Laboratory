@@ -6,14 +6,15 @@
 # read in plate reader data
 platefile = "data/20160919_plate1.txt"
 namefile = "data/D3247-D3339list.csv"
-colsinplate = 2:12 # is this a full plate?
-# colsinplate = 1 # or is this just the first column of the plate?
+# colsinplate = 2:12 # is this a full plate?
+colsinplate = 1 # or is this just the first column of the plate?
 
 strs <- readLines(platefile, skipNul = T)
 linestoskip = (which(strs == "Group: Unk_Dilution"))
 
-dat <- read.table(text = strs,  skip = linestoskip, sep = "\t", stringsAsFactors = F, fill = T, col.names = c("Sample", "Wells", "Value", "R", "Result", "MeanResult", "SD", "CV", "Dilution", "AdjResult"), row.names = 1)
-
+dat <- read.table(text = strs,  skip = linestoskip, sep = "\t", fill = T, header = T, stringsAsFactors = F)
+  
+  
 dat <- dat[13:(which(dat$Sample == "Group Column")-1), ]
 
 # read in names for the samples
