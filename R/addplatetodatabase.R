@@ -71,10 +71,10 @@ platemap2 <- as.matrix(reshape2::acast(plate2,plate2[,1] ~ plate2[,2]))
 # if continuing code from above
 diglist <- plate1
 name <- paste(plate1[1,3], "-", plate1[nrow(plate1), 3], sep = "")
-
-# # # # # if more than one plate
-# diglist <- plate2
-# name <- paste(plate2[1,3], "-", plate2[nrow(plate2), 3], sep = "")
+# 
+# if more than one plate
+diglist <- plate2
+name <- paste(plate2[1,3], "-", plate2[nrow(plate2), 3], sep = "")
 
 # diglist <- plate3
 # name <- paste(plate3[1,3], "-", plate3[nrow(plate3), 3], sep = "")
@@ -91,10 +91,11 @@ diglist$plate <- name
 
 # Upload results to database ----------------------------------------------
 
-### THIS STEP PULLS IN ALL OF THE DIGEST TABLE, ADDS THE QUANT DATA, AND THEN OVERWRITES ALL OF THE DIGEST TABLE WITH A NEW ONE CONTAINING THE NEW DATA, PROCEED WITH ***CAUTION*** ###
+### THIS STEP PULLS IN ALL OF THE DIGEST TABLE, ADDS THE QUANT DATA, AND THEN OVERWRITES ALL OF THE DIGEST TABLE WITH A NEW ONE CONTAINING THE NEW DATA, PROCEED WITH ***CAUTION*** Create the csv backup table in case you overwrite something by accident. ###
 
 # Retrieve the digest data from the database using dplyr
-  suppressWarnings(digest <- labor %>% tbl("digest") %>% collect())
+suppressWarnings(digest <- labor %>% tbl("digest") %>% collect())
+write.csv(digest, file = paste(Sys.time(), "digestbackup.csv", sep = ""))
   
   # add new quant data to existing data
   # for testing only quant$quant <- 8.008
