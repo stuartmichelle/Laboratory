@@ -8,7 +8,7 @@ labor <- src_mysql(dbname = "Laboratory", host = "amphiprion.deenr.rutgers.edu",
 
 
 # get samples for date of interest 
-digest <- labor %>% tbl("digest") %>% filter(date == "2015-05-12") %>% collect()
+digest <- labor %>% tbl("digest") %>% filter(date == "2014-07-18") %>% collect()
 
 # # if plate is smaller than 96 wells:
 # # cut down to the number of rows needed
@@ -30,15 +30,15 @@ plate1$ID <- as.character(plate1$ID)
 platemap1 <- as.matrix(reshape2::acast(plate1,plate1[,1] ~ plate1[,2]))
 # write.csv(platemap1, file = paste("data/", first, "-",last, "map.csv", sep = ""))
 
-# plate2 <- cbind(plate, digest[97:192,1])
-# names(plate2) <- c("Row", "Col", "ID")
-# first <- plate2$ID[1]
-# last <- plate2$ID[nrow(plate2)]
-# # write.csv(plate2, file = paste("data/", first, "-", last, "list.csv", sep = ""))
-# plate2$ID <- as.character(plate2$ID)
-# platemap2 <- as.matrix(reshape2::acast(plate2,plate2[,1] ~ plate2[,2]))
-# # write.csv(platemap2, file = paste("data/", first, "-",last, "map.csv", sep = ""))
-# 
+plate2 <- cbind(plate, digest[97:192,1])
+names(plate2) <- c("Row", "Col", "ID")
+first <- plate2$ID[1]
+last <- plate2$ID[nrow(plate2)]
+# write.csv(plate2, file = paste("data/", first, "-", last, "list.csv", sep = ""))
+plate2$ID <- as.character(plate2$ID)
+platemap2 <- as.matrix(reshape2::acast(plate2,plate2[,1] ~ plate2[,2]))
+# write.csv(platemap2, file = paste("data/", first, "-",last, "map.csv", sep = ""))
+
 # 
 # plate3 <- cbind(plate, digest[193:288,1])
 # names(plate3) <- c("Row", "Col", "ID")
@@ -72,7 +72,7 @@ platemap1 <- as.matrix(reshape2::acast(plate1,plate1[,1] ~ plate1[,2]))
 diglist <- plate1
 name <- paste(plate1[1,3], "-", plate1[nrow(plate1), 3], sep = "")
 
-# # if more than one plate
+# # # # # if more than one plate
 # diglist <- plate2
 # name <- paste(plate2[1,3], "-", plate2[nrow(plate2), 3], sep = "")
 
@@ -94,27 +94,27 @@ diglist$plate <- name
 ### THIS STEP PULLS IN ALL OF THE DIGEST TABLE, ADDS THE QUANT DATA, AND THEN OVERWRITES ALL OF THE DIGEST TABLE WITH A NEW ONE CONTAINING THE NEW DATA, PROCEED WITH ***CAUTION*** ###
 
 # Retrieve the digest data from the database using dplyr
-suppressWarnings(digest <- labor %>% tbl("digest") %>% collect())
-
-# add new quant data to existing data
-# for testing only quant$quant <- 8.008
-# which(digest_new$digest_id == "D3253")
-# digest_new$quant[3254] <- NA
-
-digest_new <- digest # make a copy of the original database table just in case something goes wrong
-
-digest_new$well <- ifelse(is.na(digest_new$well), diglist$well[match(digest_new$digest_id, diglist$ID)], digest_new$well)
-digest_new$plate <- ifelse(is.na(digest_new$plate), diglist$plate[match(digest_new$digest_id, diglist$ID)], digest_new$plate)
-
-# append to the data in the database using RMySQL
-library(RMySQL)
-labors <- dbConnect(MySQL(), host="amphiprion.deenr.rutgers.edu", user="michelles", password="larvae168", dbname="Laboratory", port=3306)
-
-# Send data to database
-dbWriteTable(labors,"digest",data.frame(digest_new), row.names = FALSE, overwrite = TRUE)
-
-dbDisconnect(labors)
-rm(labors)
-
-rm(digest, digest_new, diglist, plate1, platemap1, first, last, name, i)
-
+  suppressWarnings(digest <- labor %>% tbl("digest") %>% collect())
+  
+  # add new quant data to existing data
+  # for testing only quant$quant <- 8.008
+  # which(digest_new$digest_id == "D3253")
+  # digest_new$quant[3254] <- NA
+  
+  digest_new <- digest # make a copy of the original database table just in case something goes wrong
+  
+  digest_new$well <- ifelse(is.na(digest_new$well), diglist$well[match(digest_new$digest_id, diglist$ID)], digest_new$well)
+  digest_new$plate <- ifelse(is.na(digest_new$plate), diglist$plate[match(digest_new$digest_id, diglist$ID)], digest_new$plate)
+  
+  # append to the data in the database using RMySQL
+  library(RMySQL)
+  labors <- dbConnect(MySQL(), host="amphiprion.deenr.rutgers.edu", user="michelles", password="larvae168", dbname="Laboratory", port=3306)
+  
+  # Send data to database
+  dbWriteTable(labors,"digest",data.frame(digest_new), row.names = FALSE, overwrite = TRUE)
+  
+  dbDisconnect(labors)
+  rm(labors)
+  
+  rm(digest, digest_new, diglist, plate1, platemap1, first, last, name, i)
+  
