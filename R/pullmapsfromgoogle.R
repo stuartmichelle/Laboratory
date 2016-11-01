@@ -17,7 +17,7 @@ for (i in 8:length(sheetlist)){
     if (nchar(data$Sample[j]) == 14){
       data$Sample[j] <- paste(substr(data$Sample[j], 11,11), "0", substr(data$Sample[j], 12,14), sep = "")
     }
-    if (nchar(data$Sample[j]) == 14){
+    if (nchar(data$Sample[j]) == 15){
       data$Sample[j] <- substr(data$Sample[j], 11,15)
     }
   }
