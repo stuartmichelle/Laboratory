@@ -8,7 +8,6 @@ sheetlist <- googlesheets::gs_ws_ls(platemap)
 
 final <- data.frame(Row = NA, Col = NA, Sample = NA, Plate = NA)
 
-
 for (i in 8:length(sheetlist)){
   sheet <- googlesheets::gs_read(platemap, ws = sheetlist[i])
   colnames(sheet) <- c("Row", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12")
@@ -24,7 +23,7 @@ for (i in 8:length(sheetlist)){
   }
   data$Plate <- paste(data$Sample[1], "-", data$Sample[nrow(data)], sep = "")
   final <- rbind(final, data)
-  Sys.sleep(3)
+  Sys.sleep(20)
 }
 
 
