@@ -26,6 +26,9 @@ for (i in 8:length(sheetlist)){
     if (nchar(data$Sample[j]) == 10){
       data$Sample[j] <- substr(data$Sample[j], 6, 10)
     }
+    if (nchar(data$Sample[j]) == 17){
+      data$Sample[j] <- substr(data$Sample[j], 13, 17)
+    }
   }
   data$Plate <- paste(data$Sample[1], "-", data$Sample[nrow(data)], sep = "")
   final <- rbind(final, data)
