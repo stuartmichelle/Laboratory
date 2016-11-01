@@ -8,7 +8,7 @@ sheetlist <- googlesheets::gs_ws_ls(platemap)
 
 final <- data.frame(Row = NA, Col = NA, Sample = NA, Plate = NA)
 
-for (i in 26:length(sheetlist)){
+for (i in 65:71){
   sheet <- googlesheets::gs_read(platemap, ws = sheetlist[i])
   colnames(sheet) <- c("Row", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12")
   sheet <- sheet[!is.na(sheet$Row), ]
@@ -40,23 +40,18 @@ write.csv(final, file = "fullplatelist1.csv", row.names = F)
 
 
 # fix naming mistakes
-for (j in 1:nrow(final)){
-  if (nchar(final$Sample[j]) == 14){
-    final$Sample[j] <- paste(substr(final$Sample[j], 11, 11), "0", substr(final$Sample[j], 12,14), sep = "")
-  }
-  if (nchar(final$Sample[j]) == 15){
-    final$Sample[j] <- substr(final$Sample[j], 11, 15)
-  }
-  if (nchar(final$Sample[j]) == 18){
-    final$Sample[j] <- substr(final$Sample[j], 14, 18)
-  }
-  if (nchar(final$Sample[j]) == 10){
-    final$Sample[j] <- substr(final$Sample[j], 6, 10)
-  }
-  if (nchar(final$Sample[j]) == 17){
-    final$Sample[j] <- substr(final$Sample[j], 13, 17)
-  }
-}
+final$Sample[which(final$Sample == "APCL15_3733511E2579")] <- "E2579"
+final$Sample[which(final$Sample == "XE1253")] <- "E1253"
+final$Sample[which(final$Sample == "XE1254")] <- "E1254"
+final$Sample[which(final$Sample == "20430")] <- "E2430"
+final$Sample[which(final$Sample == "these columns were combined during extraction")] <- NA
+final$Sample[which(final$Sample == "BALANCE/neg control")] <- NA
+final$Plate[which(final$Plate == "E1962-BALANCE/neg control")] <- "E1962-E2043"
+
+final <- final[!is.na(final$Sample), ]
+
+write.csv(final, file = "fullplatelist1.csv", row.names = F)
+# final <- read.csv("fullplatelist1.csv", stringsAsFactors = F)
 
 extracts <- final[1,]
 extracts[1, ] <- NA
@@ -64,29 +59,17 @@ extracts[1, ] <- NA
 digests <- final[1, ]
 digests[1, ] <- NA
 
-ligs <- final[1, ]
-ligs[1, ] <- NA
-
 final_backup <- final
 
 
 # split out extracts, digests, ligations and junk
 for (i in 1:nrow(final)){
-  if (!is.na(final$Sample[i]) & substr(final$Sample[i], 1, 1) == "E"){
+  if (substr(final$Sample[i], 1, 1) == "E"){
     extracts[i, ] <- final[i,]
     final[i, ] <- NA
   }
 }
 extracts <- extracts[!is.na(extracts$Sample), ]
-
-final$Sample[1] <- "E1253"
-final$Sample[2] <- "E1254"
-final$Sample[3] <- "E2579"
-final$Sample[2] <- "E2430"
-
-extracts[nrow(extracts)+1, ] <- final[1, ]
-extracts[nrow(extracts)+1, ] <- final[2, ]
-extracts[nrow(extracts)+1, ] <- final[3, ]
 
 for (i in 1:nrow(final)){
   if (!is.na(final$Sample[i]) & substr(final$Sample[i], 1, 1) == "D"){
@@ -113,60 +96,6 @@ write.csv(final_backup, file = "fullplatelist.csv", row.names = F)
 
 # test <- read.csv("fullextractlist.csv")
 
-# look for errors in extracts plate names
-
-### This plate missed row H entirely? ###
+# look for errors in  plate names
 issue <- extracts[which(nchar(extracts$Plate) != 11),]
-probplate <- extracts[which(extracts$Plate == "1-E1685"), ]
-extracts$Plate[which(extracts$Plate == "1-E1685")] <- "E1591-E1686"
-extracts[nrow(extracts)+1, ] <- c("H", 12, "E1686", "E1591-E1686")
-
-
-
-issue <- extracts[which(nchar(extracts$Plate) != 11),]
-probplate <- extracts[which(extracts$Plate == "E1879-NA"), ]
-extracts$Plate[which(extracts$Plate == "E1879-NA")] <- "E1879-E1961"
-
-issue <- extracts[which(nchar(extracts$Plate) != 11),]
-probplate <- extracts[which(extracts$Plate == "E1962-NA"), ]
-extracts$Plate[which(extracts$Plate == "E1962-NA")] <- "E1879-E2043"
-extracts$Plate[which(extracts$Plate == "E1879-E2043")] <- "E1962-E2043"
-
-issue <- extracts[which(nchar(extracts$Plate) != 11),]
-extracts$Plate[which(extracts$Plate == "E2834-NA")] <- "E2834-E2900"
-
-issue <- extracts[which(nchar(extracts$Plate) != 11),]
-extracts$Plate[which(extracts$Plate == "E2901-NA")] <- "E2901-E2967"
-
-# check digests for issues
 issue <- digests[which(nchar(digests$Plate) != 11),]
-digests$Plate[which(digests$Plate == "1-D0842")] <- "D0748-D0843"
-
-issue <- digests[which(nchar(digests$Plate) != 11),]
-digests$Plate[which(digests$Plate == "D1324-NA")] <- "D1324-D1354"
-
-issue <- digests[which(nchar(digests$Plate) != 11),]
-digests$Plate[which(digests$Plate == "D1451-NA")] <- "D1451-D1471"
-
-issue <- digests[which(nchar(digests$Plate) != 11),]
-digests$Plate[which(digests$Plate == "D1474-NA")] <- "D1474-D1529"
-
-issue <- digests[which(nchar(digests$Plate) != 11),]
-digests$Plate[which(digests$Plate == "D1722-NA")] <- "D1722-D1784"
-
-issue <- digests[which(nchar(digests$Plate) != 11),]
-digests$Plate[which(digests$Plate == "D2073-NA")] <- "D2073-D2154"
-
-issue <- digests[which(nchar(digests$Plate) != 11),]
-### the 1-NA plate name is used on more than one plate ###
-
-# starting here at work, loading the digests from the csv:
-digests <- read.csv("fulldigestslist.csv", stringsAsFactors = F, row.names = 1)
-
-issue <- digests[which(nchar(digests$Plate) != 11),]
-### the 1-NA plate name is used on more than one plate ###
-which(digests$Plate == "1-NA")
-digests$Plate[1682:1720] <- "D2155-D2198"
-
-issue <- digests[which(nchar(digests$Plate) != 11),]
-digests$Plate[which(digests$Plate == "1-D2389")] <- "1-D2389"
