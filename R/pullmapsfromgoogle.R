@@ -111,3 +111,51 @@ write.csv(final_backup, file = "fullplatelist.csv", row.names = F)
 
 # test <- read.csv("fullextractlist.csv")
 
+# look for errors in extracts plate names
+
+### This plate missed row H entirely? ###
+issue <- extracts[which(nchar(extracts$Plate) != 11),]
+probplate <- extracts[which(extracts$Plate == "1-E1685"), ]
+extracts$Plate[which(extracts$Plate == "1-E1685")] <- "E1591-E1686"
+extracts[nrow(extracts)+1, ] <- c("H", 12, "E1686", "E1591-E1686")
+
+
+
+issue <- extracts[which(nchar(extracts$Plate) != 11),]
+probplate <- extracts[which(extracts$Plate == "E1879-NA"), ]
+extracts$Plate[which(extracts$Plate == "E1879-NA")] <- "E1879-E1961"
+
+issue <- extracts[which(nchar(extracts$Plate) != 11),]
+probplate <- extracts[which(extracts$Plate == "E1962-NA"), ]
+extracts$Plate[which(extracts$Plate == "E1962-NA")] <- "E1879-E2043"
+extracts$Plate[which(extracts$Plate == "E1879-E2043")] <- "E1962-E2043"
+
+issue <- extracts[which(nchar(extracts$Plate) != 11),]
+extracts$Plate[which(extracts$Plate == "E2834-NA")] <- "E2834-E2900"
+
+issue <- extracts[which(nchar(extracts$Plate) != 11),]
+extracts$Plate[which(extracts$Plate == "E2901-NA")] <- "E2901-E2967"
+
+# check digests for issues
+issue <- digests[which(nchar(digests$Plate) != 11),]
+digests$Plate[which(digests$Plate == "1-D0842")] <- "D0748-D0843"
+
+issue <- digests[which(nchar(digests$Plate) != 11),]
+digests$Plate[which(digests$Plate == "D1324-NA")] <- "D1324-D1354"
+
+issue <- digests[which(nchar(digests$Plate) != 11),]
+digests$Plate[which(digests$Plate == "D1451-NA")] <- "D1451-D1471"
+
+issue <- digests[which(nchar(digests$Plate) != 11),]
+digests$Plate[which(digests$Plate == "D1474-NA")] <- "D1474-D1529"
+
+issue <- digests[which(nchar(digests$Plate) != 11),]
+digests$Plate[which(digests$Plate == "D1722-NA")] <- "D1722-D1784"
+
+issue <- digests[which(nchar(digests$Plate) != 11),]
+digests$Plate[which(digests$Plate == "D2073-NA")] <- "D2073-D2154"
+
+issue <- digests[which(nchar(digests$Plate) != 11),]
+### the 1-NA plate name is used on more than one plate ###
+
+
