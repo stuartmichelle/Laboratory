@@ -34,8 +34,8 @@ for (i in 66:length(sheetlist)){
   final <- rbind(final, data)
   Sys.sleep(20)
 }
+write.csv(final, file = "fullplatelist1.csv", row.names = F)
 
-write.csv(final, file = "fullplatelist.csv", row.names = F)
 
 # fix naming mistakes
 for (j in 1:nrow(final)){
@@ -107,6 +107,7 @@ final <- final[!is.na(final$Row), ]
 write.csv(extracts, file = "fullextractlist.csv", row.names = F)
 write.csv(digests, file = "fulldigestlist.csv", row.names = F)
 write.csv(ligs, file = "fullligationlist.csv", row.names = F)
+write.csv(final_backup, file = "fullplatelist.csv", row.names = F)
 
 # test <- read.csv("fullextractlist.csv")
 
