@@ -8,9 +8,10 @@ sheetlist <- googlesheets::gs_ws_ls(platemap)
 
 final <- data.frame(Row = NA, Col = NA, Sample = NA, Plate = NA)
 
-for (i in 66:length(sheetlist)){
+for (i in 8:length(sheetlist)){
   sheet <- googlesheets::gs_read(platemap, ws = sheetlist[i])
   colnames(sheet) <- c("Row", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12")
+  sheet <- sheet[!is.na(sheet$Row), ]
   sheet <- sheet[1:8, ]
   data <- reshape2::melt(sheet, id.vars = "Row", variable.name = "Col", value.name = "Sample")
   for (j in 1:nrow(data)){
@@ -162,6 +163,9 @@ issue <- digests[which(nchar(digests$Plate) != 11),]
 digests <- read.csv("fulldigestslist.csv", stringsAsFactors = F, row.names = 1)
 
 issue <- digests[which(nchar(digests$Plate) != 11),]
+### the 1-NA plate name is used on more than one plate ###
 which(digests$Plate == "1-NA")
 digests$Plate[1682:1720] <- "D2155-D2198"
 
+issue <- digests[which(nchar(digests$Plate) != 11),]
+digests$Plate[which(digests$Plate == "1-D2389")] <- "1-D2389"
