@@ -4,7 +4,9 @@
 # WHICH COLUMN OF THE SECOND PLATE IS THE FIRST COLUMN IN?
 extracol <- 2
 
-# read digest platemap_list into R from database
+# Read digest platemap_list into R from database - find the samples in the plate and their well locations
+
+# which plate are you looking for?
 platename <- "D3247-D3339"
 
 suppressMessages(library(dplyr))
