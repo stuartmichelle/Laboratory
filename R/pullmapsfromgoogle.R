@@ -15,10 +15,16 @@ for (i in 8:length(sheetlist)){
   data <- reshape2::melt(sheet, id.vars = "Row", variable.name = "Col", value.name = "Sample")
   for (j in 1:nrow(data)){
     if (nchar(data$Sample[j]) == 14){
-      data$Sample[j] <- paste(substr(data$Sample[j], 11,11), "0", substr(data$Sample[j], 12,14), sep = "")
+      data$Sample[j] <- paste(substr(data$Sample[j], 11, 11), "0", substr(data$Sample[j], 12,14), sep = "")
     }
     if (nchar(data$Sample[j]) == 15){
-      data$Sample[j] <- substr(data$Sample[j], 11,15)
+      data$Sample[j] <- substr(data$Sample[j], 11, 15)
+    }
+    if (nchar(data$Sample[j]) == 18){
+      data$Sample[j] <- substr(data$Sample[j], 14, 18)
+    }
+    if (nchar(data$Sample[j]) == 10){
+      data$Sample[j] <- substr(data$Sample[j], 6, 10)
     }
   }
   data$Plate <- paste(data$Sample[1], "-", data$Sample[nrow(data)], sep = "")
