@@ -158,4 +158,10 @@ digests$Plate[which(digests$Plate == "D2073-NA")] <- "D2073-D2154"
 issue <- digests[which(nchar(digests$Plate) != 11),]
 ### the 1-NA plate name is used on more than one plate ###
 
+# starting here at work, loading the digests from the csv:
+digests <- read.csv("fulldigestslist.csv", stringsAsFactors = F, row.names = 1)
+
+issue <- digests[which(nchar(digests$Plate) != 11),]
+which(digests$Plate == "1-NA")
+digests$Plate[1682:1720] <- "D2155-D2198"
 
