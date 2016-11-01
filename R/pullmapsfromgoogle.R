@@ -35,4 +35,6 @@ for (i in 8:length(sheetlist)){
   Sys.sleep(20)
 }
 
+write.csv(final, file = "fullplatelist.csv", row.names = F)
+
 
