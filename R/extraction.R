@@ -1,6 +1,6 @@
 # a script for prepping extractions and importing them into the database
 
-# define the interval of sample numbers to be extracted
+# enter the interval of sample numbers to be extracted
 span <- 95:188
 
 # make a list of sample IDs in the order they are going to be extracted
@@ -39,13 +39,17 @@ extr$number <- as.integer(1:96)
 
 # make a plate map of sample IDs (for knowing where to place fin clips)
 plate <- data.frame( Row = rep(LETTERS[1:8], 12), Col = unlist(lapply(1:12, rep, 8)))
-platelist <- cbind(plate, extr[,2])
+platelist <- cbind(plate, extr$sample_ID)
 names(platelist) <- c("Row", "Col", "ID")
 platelist$ID <- as.character(platelist$ID)
-platemap <- as.matrix(reshape2::acast(platelist,platelist[,1] ~ platelist[,2]))
+platemap <- as.matrix(reshape2::acast(platelist,platelist[,1] ~ platelist[,2]), value.var = platelist$ID)
 write.csv(platemap, file = paste(Sys.Date(), "extract_map.csv", sep = ""))
+# print this platemap and use to place fin clips in wells
 
-
+# add well and plate data to extr table
+platelist$well <- paste(platelist$Row, platelist$Col, sep = "")
+platelist <- platelist[ , c("well", "ID")]
+extr <- left_join(extr, platelist, by = c("sample_ID" = "ID"), copy = T)
 
 
 ### ONLY DO THIS ONCE ### generate extract numbers for database
@@ -53,35 +57,40 @@ write.csv(platemap, file = paste(Sys.Date(), "extract_map.csv", sep = ""))
 suppressMessages(library(dplyr))
 labor <- src_mysql(dbname = "Laboratory", host = "amphiprion.deenr.rutgers.edu", user = "michelles", password = "larvae168", port = 3306, create = F)
 
-n <- data.frame(labor %>% tbl("extraction") %>% summarize(n()))
+# get the last number used for extract
+suppressWarnings(n <- data.frame(labor %>% tbl("extraction") %>% summarize(n())))
 x <- n[1,]
 extr$number <- paste("E", (extr$number + x), sep = "")
+extr$plate <- paste(extr$number[1], "-", extr$number[nrow(extr)], sep = "")
 
-# edit the plate reader document so that it can be imported - delete header/footer, open in excel, check columns and save as csv
-# import plate reader results for quantificaiton
-pr <- read.csv("data/20160908_plate3.csv", stringsAsFactors = F, header = T)
 
-# # add extract numbers (this plate contains the results for E2968-2975 plus others not on this current plate)
+
+
+# # edit the plate reader document so that it can be imported - delete header/footer, open in excel, check columns and save as csv
+# # import plate reader results for quantificaiton
+# pr <- read.csv("data/20160908_plate3.csv", stringsAsFactors = F, header = T)
 # 
-# # remove rows for non-plate results
-# pr <- pr[1:8,]
-# # add extract numbers
-# pr$number <- 2968:2975
-# pr$number <- paste("E", pr$number, sep="")
-
-pr2 <- read.csv("data/20160908_plate2.csv", stringsAsFactors = F)
-
-pr2$number <- 3072:3159
-pr2$number <- paste("E", pr2$number, sep="")
-names(pr2) <- c("Sample", "Wells", "Value", "R", "Result", "MeanResult", "SD", "CV", "Dilution", "quant","number")
-
-
-extr1 <- merge(extr, pr, by.x = "number", by.y = "extraction_ID", all.x = T)
-extr1 <- extr1[1:8,]
-extr2 <- merge(extr, pr2[ , 10:11], by.x = "number", by.y = "number", all.x = T)
-extr2 <- extr2[9:96,]
-
-extr <- rbind(extr1,extr2)
+# # # add extract numbers (this plate contains the results for E2968-2975 plus others not on this current plate)
+# # 
+# # # remove rows for non-plate results
+# # pr <- pr[1:8,]
+# # # add extract numbers
+# # pr$number <- 2968:2975
+# # pr$number <- paste("E", pr$number, sep="")
+# 
+# pr2 <- read.csv("data/20160908_plate2.csv", stringsAsFactors = F)
+# 
+# pr2$number <- 3072:3159
+# pr2$number <- paste("E", pr2$number, sep="")
+# names(pr2) <- c("Sample", "Wells", "Value", "R", "Result", "MeanResult", "SD", "CV", "Dilution", "quant","number")
+# 
+# 
+# extr1 <- merge(extr, pr, by.x = "number", by.y = "extraction_ID", all.x = T)
+# extr1 <- extr1[1:8,]
+# extr2 <- merge(extr, pr2[ , 10:11], by.x = "number", by.y = "number", all.x = T)
+# extr2 <- extr2[9:96,]
+# 
+# extr <- rbind(extr1,extr2)
 
 extr$dna <- extr$final_vol * extr$quant * 0.001
 
