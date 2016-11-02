@@ -39,6 +39,8 @@ write.csv(platemap, file = paste(Sys.Date(), "extract_map.csv", sep = ""))
 # clean up
 rm(str1, str2, str3, str4, str5, well, sampid, span, species, year)
 
+########################################################################
+
 # add the date of extraction
 extr$date <- as.Date("2016-09-06")
 
