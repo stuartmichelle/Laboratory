@@ -21,12 +21,11 @@ if (nrow(work) > 1){
   suppressWarnings(lig <- labor %>% tbl("ligation") %>% filter(digest_id == work$digest_id) %>% select(ligation_id, digest_id, pool) %>% collect())
 }
 work <- left_join(work, lig, by = "digest_id")
-colnames(work) <- c("sample_id", "extraction_id", "digest_id", "ligation_id", "pcr_id")
 
 # Add SEQ
 if (nrow(work) > 1){
-  suppressWarnings(seq <- labor %>% tbl("pcr") %>% filter(pcr_id %in% work$pcr_id) %>% select(pcr_id, SEQ) %>% collect())
+  suppressWarnings(seq <- labor %>% tbl("pcr") %>% filter(pcr_id %in% work$pool) %>% select(pcr_id, SEQ) %>% collect())
 }else{
-  suppressWarnings(seq <- labor %>% tbl("pcr") %>% filter(pcr_id == work$pcr_id) %>% select(pcr_id, SEQ) %>% collect())
+  suppressWarnings(seq <- labor %>% tbl("pcr") %>% filter(pcr_id == work$pool) %>% select(pcr_id, SEQ) %>% collect())
 }
-work <- left_join(work, seq, by = "pcr_id")
+work <- left_join(work, seq, by = c("pool" = "pcr_id"))
