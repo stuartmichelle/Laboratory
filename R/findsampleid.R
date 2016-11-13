@@ -7,6 +7,11 @@ labor <- src_mysql(dbname = "Laboratory", default.file = path.expand("~/myconfig
 # enter id of the labwork - "L2345", "SEQ17", "P037"
 sample <- "D2345"
 
+# or enter a list of lab ids
+list <- read.csv("data/L3075-L3170list.csv", stringsAsFactors = F, row.names = 1)
+for (i in 1:nrow(list)){
+  sample <- list$ID[i]
+
 # Find the sample_ID
 if (substr(sample, 1,1) == "L"){
   suppressWarnings(lig <- labor %>% tbl("ligation") %>% filter(ligation_id == sample) %>% select(ligation_id, digest_id) %>% collect())
@@ -48,3 +53,4 @@ if (substr(sample, 1,1) == "P"){
     rm(dig, extr)
   }
 
+}
