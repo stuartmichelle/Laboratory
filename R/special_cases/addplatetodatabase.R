@@ -8,7 +8,7 @@ labor <- src_mysql(dbname = "Laboratory", host = "amphiprion.deenr.rutgers.edu",
 
 
 # get samples for date of interest 
-digest <- labor %>% tbl("digest") %>% filter(date == "2014-07-18") %>% collect()
+# digest <- labor %>% tbl("digest") %>% filter(date == "2016-09-18") %>% collect()
 
 # # if plate is smaller than 96 wells:
 # # cut down to the number of rows needed
@@ -19,13 +19,23 @@ digest <- labor %>% tbl("digest") %>% filter(date == "2014-07-18") %>% collect()
 # plate1 <- cbind(plate, digest[ , 1])
 # # end small plate section
 
-# 
-plate1 <- cbind(plate, digest[1:96,1])
+### GET SAMPLES FROM BIOMEK LIST ###
+digest <- read.csv("data/2016-09-15biomek.csv", as.is = T)
+digest$Row <- substr(digest$destwell, 1, 1)
+digest$Col <- substr(digest$destwell, 2, 3)
 
-names(plate1) <- c("Row", "Col", "ID")
-first <- plate1$ID[1]
-last <- plate1$ID[nrow(plate1)]
-# write.csv(plate1, file = paste("data/", first, "-", last, "list.csv", sep = ""))
+# sort by plate location
+digest <- arrange(digest, Col, Row)
+
+digest$ID <- paste("D", )
+
+ 
+# plate1 <- cbind(plate, digest[1:96,1])
+# 
+# names(plate1) <- c("Row", "Col", "ID")
+# first <- plate1$ID[1]
+# last <- plate1$ID[nrow(plate1)]
+# # write.csv(plate1, file = paste("data/", first, "-", last, "list.csv", sep = ""))
 plate1$ID <- as.character(plate1$ID)
 platemap1 <- as.matrix(reshape2::acast(plate1,plate1[,1] ~ plate1[,2]))
 # write.csv(platemap1, file = paste("data/", first, "-",last, "map.csv", sep = ""))
@@ -57,6 +67,10 @@ platemap2 <- as.matrix(reshape2::acast(plate2,plate2[,1] ~ plate2[,2]))
 # plate4$ID <- as.character(plate4$ID)
 # platemap <- as.matrix(reshape2::acast(plate4,plate4[,1] ~ plate4[,2]))
 # # write.csv(platemap, file = paste("data/", first, "-",last, "map.csv", sep = ""))
+
+### create a source map ###
+plate1 <- digest[ , c(2, 9, 10)]
+
 
 ### COMPARE THE PLATEMAP TO THE GOOGLE SHEET TO MAKE SURE THERE ARE NO DIFFERENCES ###
 

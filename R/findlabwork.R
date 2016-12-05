@@ -1,11 +1,11 @@
 # This script is intended to take a given sample ID and find all of the labwork done to that sample
-
-# Connect to database
-suppressMessages(library(dplyr))
-labor <- src_mysql(dbname = "Laboratory", default.file = path.expand("~/myconfig.cnf"), port = 3306, create = F, host = NULL, user = NULL, password = NULL)
+findlab <- function(y){
+  # Connect to database
+  suppressMessages(library(dplyr))
+  labor <- src_mysql(dbname = "Laboratory", default.file = path.expand("~/myconfig.cnf"), port = 3306, create = F, host = NULL, user = NULL, password = NULL)
 
 # enter sample you are looking for
-sample <- "APCL13_230"
+sample <- y
 
 # Find extractions
 work <- labor %>% tbl("extraction") %>% filter(sample_id == sample) %>% select(sample_id, extraction_id) %>% collect()
@@ -29,3 +29,7 @@ if (nrow(work) > 1){
   suppressWarnings(seq <- labor %>% tbl("pcr") %>% filter(pcr_id == work$pool) %>% select(pcr_id, SEQ) %>% collect())
 }
 work <- left_join(work, seq, by = c("pool" = "pcr_id"))
+
+print(work)
+
+}

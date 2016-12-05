@@ -1,11 +1,13 @@
 # This script is intended to take a given lab ID and find the sample ID
+findsample <- function(x){
+  
 
 # Connect to database
 suppressMessages(library(dplyr))
 labor <- src_mysql(dbname = "Laboratory", default.file = path.expand("~/myconfig.cnf"), port = 3306, create = F, host = NULL, user = NULL, password = NULL)
 
 # enter id of the labwork - "L2345", "SEQ17", "P037"
-sample <- "D2345"
+sample <- x
 
 
 
@@ -17,6 +19,7 @@ if (substr(sample, 1,1) == "L"){
   suppressWarnings(extr <- labor %>% tbl("extraction") %>% filter(extraction_id == dig$extraction_id) %>% select(extraction_id, sample_id) %>% collect())
   lig <- left_join(lig, extr, by = "extraction_id")
   rm(dig, extr)
+  text <- lig
 }
 
 if (substr(sample, 1,1) == "D"){
@@ -24,10 +27,12 @@ if (substr(sample, 1,1) == "D"){
   suppressWarnings(extr <- labor %>% tbl("extraction") %>% filter(extraction_id == dig$extraction_id) %>% select(extraction_id, sample_id) %>% collect())
   dig <- left_join(dig, extr, by = "extraction_id")
   rm(extr)
+  dig
 }
 
 if (substr(sample, 1,1) == "E"){
   suppressWarnings(extr <- labor %>% tbl("extraction") %>% filter(extraction_id == sample) %>% select(extraction_id, sample_id) %>% collect())
+  extr
 }
 
 if (substr(sample, 1,1) == "S"){
@@ -49,3 +54,6 @@ if (substr(sample, 1,1) == "P"){
     lig <- left_join(lig, extr, by = "extraction_id")
     rm(dig, extr)
   }
+
+print(text)
+}
