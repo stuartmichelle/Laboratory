@@ -1,4 +1,5 @@
 # a script to make platemaps from ligation data based on barcode id
+source("R/platefromlist.R")
 
 # import lab ids for the plate
 suppressMessages(library(dplyr))
@@ -12,11 +13,17 @@ dig$Row <- substr(dig$well, 1, 1)
 dig$Col <- substr(dig$well, 2, 3)
 
 
-plate1 <- cbind(plate, dig$digest_id)
-names(plate1) <- c("Row", "Col", "digest_id")
-first <- plate1$digest_id[1]
-last <- plate1$digest_id[nrow(plate1)]
-write.csv(plate1, file = paste("data/", first, "-", last, "list.csv", sep = ""))
-plate1$digest_id <- as.character(plate1$digest_id)
-platemap <- as.matrix(reshape2::acast(plate1,plate1[,1] ~ plate1[,2]))
-write.csv(platemap, file = paste("data/", first, "-",last, "map.csv", sep = ""))
+plate1 <- dig[ , c("Row", "Col", "digest_id")]
+names(plate1) <- c("Row", "Col", "ID")
+first <- plate1$ID[1]
+last <- plate1$ID[nrow(plate1)]
+
+# for some reason the platemap works from a csv but not from plate1
+filename <- paste("data/", first, "-", last, "list.csv", sep = "")
+write.csv(plate1, file = filename)
+
+platemap(filename)
+
+
+
+
