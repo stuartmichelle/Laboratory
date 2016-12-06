@@ -22,6 +22,7 @@ last <- plate1$ID[nrow(plate1)]
 filename <- paste("data/", first, "-", last, "list.csv", sep = "")
 write.csv(plate1, file = filename)
 
+# use Michelle's function to make platemap
 platemap(filename)
 
 
