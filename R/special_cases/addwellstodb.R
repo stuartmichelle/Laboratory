@@ -4,7 +4,7 @@
 
 # pull in all of the  data
 suppressMessages(library(dplyr))
-labor <- src_mysql(dbname = "Laboratory", host = "amphiprion.deenr.rutgers.edu", user = "michelles", password = "larvae168", port = 3306, create = F)
+labor <- src_mysql(dbname = "Laboratory", default.file = path.expand("~/myconfig.cnf"), port = 3306, create = F, host = NULL, user = NULL, password = NULL)
 
 suppressWarnings(extract <- labor %>% tbl("extraction") %>% collect())
 
@@ -19,7 +19,7 @@ final <- left_join(extract, wells, by = c("extraction_id" = "Sample"))
 
 # append to the data in the database using RMySQL
 library(RMySQL)
-labors <- dbConnect(MySQL(), host="amphiprion.deenr.rutgers.edu", user="michelles", password="larvae168", dbname="Laboratory", port=3306)
+labors <- dbConnect(MySQL(), dbname="Laboratory", default.file = path.expand("~/myconfig.cnf"), port = 3306, create = F, host = NULL, user = NULL, password = NULL)
 
 # Send data to database
 dbWriteTable(labors,"extraction",data.frame(final), row.names = FALSE, overwrite = TRUE)
@@ -34,7 +34,7 @@ rm(labors)
 
 # pull in all of the  data
 suppressMessages(library(dplyr))
-labor <- src_mysql(dbname = "Laboratory", host = "amphiprion.deenr.rutgers.edu", user = "michelles", password = "larvae168", port = 3306, create = F)
+labor <- src_mysql(dbname = "Laboratory", default.file = path.expand("~/myconfig.cnf"), port = 3306, create = F, host = NULL, user = NULL, password = NULL)
 
 suppressWarnings(samples <- labor %>% tbl("digest") %>% collect())
 
@@ -52,7 +52,7 @@ final <- left_join(samples, wells, by = c("digest_id" = "Sample"))
 
 # append to the data in the database using RMySQL
 library(RMySQL)
-labors <- dbConnect(MySQL(), host="amphiprion.deenr.rutgers.edu", user="michelles", password="larvae168", dbname="Laboratory", port=3306)
+labors <- dbConnect(MySQL(), dbname="Laboratory", default.file = path.expand("~/myconfig.cnf"), port = 3306, create = F, host = NULL, user = NULL, password = NULL)
 
 # Send data to database
 dbWriteTable(labors,"digest",data.frame(final), row.names = FALSE, overwrite = TRUE)

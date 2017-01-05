@@ -3,7 +3,7 @@
 # determine which, if any, samples from the extract plate cannot be digested (DNA > 5ug)
 
 suppressMessages(library(dplyr))
-labor <- src_mysql(dbname = "Laboratory", host = "amphiprion.deenr.rutgers.edu", user = "michelles", password = "larvae168", port = 3306, create = F)
+labor <- src_mysql(dbname = "Laboratory", default.file = path.expand("~/myconfig.cnf"), port = 3306, create = F, host = NULL, user = NULL, password = NULL)
 
 # access all digest and extract IDs
 suppressWarnings(digextr <- labor %>% tbl("digest") %>% select(extraction_id, digest_id) %>% collect())

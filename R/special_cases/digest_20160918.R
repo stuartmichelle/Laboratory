@@ -10,7 +10,7 @@ need$vol_in <- 30
 
 # get quantification data from database
 suppressMessages(library(dplyr))
-labor <- src_mysql(dbname = "Laboratory", host = "amphiprion.deenr.rutgers.edu", user = "michelles", password = "larvae168", port = 3306, create = F)
+labor <- src_mysql(dbname = "Laboratory", default.file = path.expand("~/myconfig.cnf"), port = 3306, create = F, host = NULL, user = NULL, password = NULL)
 extr <- data.frame(labor %>% tbl("extraction") %>% select (extraction_ID, quant))
 # remove any extractions not in our list
 extr <- left_join(need, extr, by = "extraction_ID")

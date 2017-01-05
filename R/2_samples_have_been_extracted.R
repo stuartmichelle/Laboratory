@@ -23,7 +23,7 @@ extr$well <- paste(extr$Row, extr$Col, sep = "")
 ### ONLY DO THIS ONCE ### generate extract numbers for database
 
 suppressMessages(library(dplyr))
-labor <- src_mysql(dbname = "Laboratory", host = "amphiprion.deenr.rutgers.edu", user = "michelles", password = "larvae168", port = 3306, create = F)
+labor <- src_mysql(dbname = "Laboratory", default.file = path.expand("~/myconfig.cnf"), port = 3306, create = F, host = NULL, user = NULL, password = NULL)
 
 # get the last number used for extract
 suppressWarnings(n <- data.frame(labor %>% tbl("extraction") %>% summarize(n())))
@@ -112,7 +112,7 @@ extr_new$quant <- ifelse(is.na(extr_new$quant), quant$quant[match(extr_new$extra
 
 # append to the data in the database using RMySQL
 library(RMySQL)
-labors <- dbConnect(MySQL(), host="amphiprion.deenr.rutgers.edu", user="michelles", password="larvae168", dbname="Laboratory", port=3306)
+labors <- dbConnect(MySQL(), dbname="Laboratory", default.file = path.expand("~/myconfig.cnf"), port = 3306, create = F, host = NULL, user = NULL, password = NULL)
 
 # Send data to database
 dbWriteTable(labors,"extraction",data.frame(extr_new), row.names = FALSE, overwrite = )

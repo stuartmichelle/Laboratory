@@ -5,7 +5,7 @@
 # find samples that tolig to be ligated
 
 suppressMessages(library(dplyr))
-labor <- src_mysql(dbname = "Laboratory", host = "amphiprion.deenr.rutgers.edu", user = "michelles", password = "larvae168", port = 3306, create = F)
+labor <- src_mysql(dbname = "Laboratory", default.file = path.expand("~/myconfig.cnf"), port = 3306, create = F, host = NULL, user = NULL, password = NULL)
 
 # pull digest ids from ligation table
 suppressWarnings(ligdig <- labor %>% tbl("ligation") %>% select(ligation_id, digest_id) %>% collect())
