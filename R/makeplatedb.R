@@ -16,6 +16,6 @@ mkplatedb <- function(x){
   plate$row <- substr(plate$well, 1, 1)
   plate$col <- substr(plate$well, 2, 3)
   plate$well <- NULL
-  names(plate) <- c("id, row, col")
+  names(plate) <- c("id", "row", "col")
   return(plate)
 }
