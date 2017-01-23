@@ -30,6 +30,9 @@ if (nrow(work) > 1){
 }
 work <- left_join(work, seq, by = c("pool" = "pcr_id"))
 
-print(work)
+rm(labor)
+gc()
 
+print(work)
+return(work)
 }
